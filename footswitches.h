@@ -17,7 +17,10 @@
 #define SPECIAL_6_7 GIG_LOOPER_VIEW
 
 //How long should the switches be debounced? Set it as low as possible without getting double inputs
-#define DEBOUNCE 50
+#define DEBOUNCE 30
+
+#define EXP1_CALIBRATION_KEY 4
+#define EXP2_CALIBRATION_KEY 5
 
 //Set the actions per bank, empty actions will have no effect
 //The option ending in "P" is called when the switch is pressed

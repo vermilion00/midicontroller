@@ -12,12 +12,10 @@
  * Fix Switches/LEDs getting stuck occasionally
  * Expand code to 16 banks, 16 switches and 16 LEDs - prob done
  * Clean up and generalize code
- * Add option to start calibration of EXP1 if button 0 is held at startup etc - prob done?
- * Check if the calibration commands need a startup delay to make sure the switches are released
  * Simplify footswitch assignments to an array to make calling easier?
  * Maybe even a 2D array where rows are banks and cols are footswitches in that bank?
  * Would probs make individual footswitch led modes easier, also the code more compact
- * Check if startup calibration works
+ * Allow for held combos (shouldn't be too difficult)
  */
 
 MIDI_CREATE_DEFAULT_INSTANCE();
@@ -90,23 +88,24 @@ void setup(){
   exp1_val = analogRead(EXP1_PIN);
   if(exp1_val > EXP_THRESHOLD){
     exp1_connected = true;
-    //TODO: Read saved limits from EEPROM
-    //Start calibration if btn 0 is held at startup
-    buttons.update();
-    if(buttons.held(0)){
+    //Start calibration if calibration key is held at startup
+    if(!digitalRead(buttonPins[EXP1_CALIBRATION_KEY])){
       bool released_startup = false;
-      while(!released_startup){ 
-        released_startup = true; 
-        buttons.update(); 
-        for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ 
-          if(buttons.held(i)){ 
-            released_startup = false; 
-            //break; 
-          }
-        } 
+      #ifndef NO_LED
+      for(uint8_t i = 0; i < LED_NUM; i++){
+        ledState[i] = true;
+      }
+      updateLEDs();
+      #endif //ifndef NO_LED
+      while(!released_startup){
+        released_startup = true;
+        if(!digitalRead(buttonPins[EXP1_CALIBRATION_KEY])){
+          released_startup = false;
+        }
       }
       calibrateExp(1); 
     }
+    //TODO: Read saved limits from EEPROM
   }
   #endif
   #ifdef EXP2_PIN
@@ -117,23 +116,24 @@ void setup(){
   exp2_val = analogRead(EXP2_PIN);
   if(exp2_val > EXP_THRESHOLD){
     exp2_connected = true;
-    //TODO: Read saved limits from EEPROM
     //Start calibration if btn 1 is held at startup
-    buttons.update();
-    if(buttons.held(1)){
+    if(!digitalRead(buttonPins[EXP2_CALIBRATION_KEY])){
       bool released_startup = false;
+      #ifndef NO_LED
+      for(uint8_t i = 0; i < LED_NUM; i++){
+        ledState[i] = true;
+      }
+      updateLEDs();
+      #endif //ifndef NO_LED
       while(!released_startup){ 
         released_startup = true; 
-        buttons.update(); 
-        for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ 
-          if(buttons.held(i)){ 
-            released_startup = false; 
-            //break; 
-          }
+        if(!digitalRead(buttonPins[EXP2_CALIBRATION_KEY])){ 
+          released_startup = false;
         } 
       }
       calibrateExp(2); 
     }
+    //TODO: Read saved limits from EEPROM
   }
   #endif
   //Turn on all LEDs at the start if the mode is set to LED_ALL, LED_EXP1 or LED_EXP2
@@ -543,6 +543,7 @@ void updateLEDs(void){
     //Set brightness according to EXP2 position when bank is changed
     } else if(bank_led_mode[bank] == LED_EXP2){
       exp2_val = analogRead(EXP2_PIN);
+      exp2_val = constrain(exp2_val, exp2_lower, exp2_upper);
       FastLED.setBrightness(map(exp2_val, exp2_lower, exp2_upper, MIN_BRIGHTNESS, MAX_BRIGHTNESS));
       FastLED.show();
     #endif
@@ -702,17 +703,21 @@ void calibrateExp(uint8_t pedal){
         EXP_PEDAL_1(val);
         #endif //ifndef NO_CALIBRATION_ANIMATION
         buttons.update();
-        //TODO: Make sure this doesn't instantly cancel
-        for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){
-          if(buttons.rose(i)){
-            calibration_finished = true;
-            exp1_upper -= EXP1_DEADZONE;
-            exp1_lower += EXP1_DEADZONE;
-            //Reset btn_held to hopefully fix an issue
-            for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
-              btn_held[j] = false;
+        for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
+          if(buttons.fell(i)){
+            while(!calibration_finished){
+              buttons.update();
+              if(buttons.rose(i)){
+                calibration_finished = true;
+                exp1_upper -= EXP1_DEADZONE;
+                exp1_lower += EXP1_DEADZONE;
+                //Reset btn_held to fix an issue
+                for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
+                  btn_held[j] = false;
+                }
+                break;
+              }
             }
-            break;
           }
         }
       }
@@ -742,17 +747,21 @@ void calibrateExp(uint8_t pedal){
         EXP_PEDAL_2(val);
         #endif //ifndef NO_CALIBRATION_ANIMATION
         buttons.update();
-        //TODO: Make sure this doesn't instantly cancel
         for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
-          if(buttons.rose(i)){
-            calibration_finished = true;
-            exp2_upper -= EXP2_DEADZONE;
-            exp2_lower += EXP2_DEADZONE
-            //Reset btn_held to hopefully fix an issue
-            for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
-              btn_held[j] = false;
+          if(buttons.fell(i)){
+            while(!calibration_finished){
+              buttons.update(i);
+              if(buttons.rose(i)){
+                calibration_finished = true;
+                exp2_upper -= EXP2_DEADZONE;
+                exp2_lower += EXP2_DEADZONE
+                //Reset btn_held to hopefully fix an issue
+                for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
+                  btn_held[j] = false;
+                }
+                break;
+              }
             }
-            break;
           }
         }
       }

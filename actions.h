@@ -314,6 +314,7 @@
       for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
         if(buttons.held(i)){ \
           startCalibration = false; \
+          break; \
         } \
       } \
     } \
@@ -339,7 +340,6 @@
     calibrateExp(2); \
   }
 
-//Do I even need to check if special action is set? Can't I just set it?
 #define CALIBRATE_PEDALS \
   if(!special_action){ \
     special_action = true; \
@@ -352,8 +352,8 @@
     for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
       ledState[i] = false; \
     } \
-    ledState[0] = true; \
-    ledState[1] = true; \
+    ledState[EXP1_CALIBRATION_KEY] = true; \
+    ledState[EXP2_CALIBRATION_KEY] = true; \
     updateLEDs(); \
     while(!calibrationFinished){ \
       calibrationFinished = true; \
@@ -368,19 +368,31 @@
     while(!calibrationFinished){ \
       calibrationFinished = false; \
       buttons.update(); \
-      if(buttons.held(0)){ \
+      if(buttons.held(EXP1_CALIBRATION_KEY)){ \
         startCalibration1 = true; \
         calibrationFinished = true; \
-      } else if(buttons.held(1)){ \
+      } else if(buttons.held(EXP2_CALIBRATION_KEY)){ \
         startCalibration2 = true; \
         calibrationFinished = true; \
       } \
-      for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){ \
-        if(buttons.held(i)){ \
-          calibrationFinished = true; \
-          ledState[0] = false; \
-          ledState[1] = false; \
-          updateLEDs(); \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(i == EXP1_CALIBRATION_KEY || i == EXP2_CALIBRATION_KEY){ \
+          continue; \
+        } \
+        if(buttons.fell(i)){ \
+          while(!calibrationFinished){ \
+            buttons.update(); \
+            if(buttons.rose(i)){ \
+              calibrationFinished = true; \
+              ledState[EXP1_CALIBRATION_KEY] = false; \
+              ledState[EXP2_CALIBRATION_KEY] = false; \
+              for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){ \
+                btn_held[j] = false; \
+              } \
+              updateLEDs(); \
+              break; \
+            } \
+          } \
         } \
       } \
     } \
@@ -390,7 +402,6 @@
       calibrateExp(2); \
     } \
   }
-
 #else
 #define CALIBRATE_PEDAL_1 \
   if(!special_action){ \
@@ -442,16 +453,24 @@
     while(!calibrationFinished){ \
       calibrationFinished = false; \
       buttons.update(); \
-      if(buttons.held(0)){ \
+      if(buttons.held(EXP1_CALIBRATION_KEY)){ \
         startCalibration1 = true; \
         calibrationFinished = true; \
-      } else if(buttons.held(1)){ \
+      } else if(buttons.held(EXP2_CALIBRATION_KEY)){ \
         startCalibration2 = true; \
         calibrationFinished = true; \
       } \
-      for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){ \
-        if(buttons.held(i)){ \
-          calibrationFinished = true; \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(i == EXP1_CALIBRATION_KEY || i == EXP2_CALIBRATION_KEY){ \
+          continue; \
+        } \
+        if(buttons.fell(i)){ \
+          while(!calibrationFinished){ \
+            buttons.update(); \
+            if(buttons.rose(i)){ \
+              calibrationFinished = true; \
+            } \
+          } \
         } \
       } \
     } \
@@ -463,12 +482,23 @@
   }
 #endif //if LED_NUM > 1
 
+#ifdef EXP1_PIN
+#ifndef EXP1_CALIBRATION_KEY
+  #define EXP1_CALIBRATION_KEY 0
+#endif
+#endif
+#ifdef EXP2_PIN
+#ifndef EXP2_CALIBRATION_KEY
+  #define EXP2_CALIBRATION_KEY 1
+#endif
+#endif
+
 #ifndef MAX_BRIGHTNESS
   #define MAX_BRIGHTNESS 240
 #endif
 
 #ifndef MIN_BRIGHTNESS
-  #define MIN_BRIGHTNESS 5
+  #define MIN_BRIGHTNESS 1
 #endif
 
 //Fallback LED_NUM

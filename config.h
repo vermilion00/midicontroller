@@ -4,6 +4,9 @@
 //To which Pin is that button connected?
 //#define SPECIAL_PIN 10
 
+#define SPECIAL_HOLD_ACTION
+#define SPECIAL_PRESS_ACTION
+
 //How many LEDs do you use? Comment out if you don't use any
 #define LED_NUM 8
 
@@ -29,11 +32,12 @@
 #define LED_BRIGHTNESS 30
 
 //Do you have a Looper bank? Opening gig view on this bank will open the Looper view instead
+//If GIG_LOOPER_VIEW is assigned to an action
 #define LOOPER_BANK 0
 
 //Do you have expression pedals connected, and if so, to which pins?
 //Comment out if not connected
-//EXP1_PIN is pulled low with a k resistor, values between 295 (heel) and 765 (toe)
+//It is recommended to pull the Pin to GND with a k resistor
 #define EXP1_PIN A0
 //#define EXP2_PIN
 
@@ -53,8 +57,8 @@
 //Defaults to DEFAULT_MODE when uncommented
 //Leave blank to avoid setting the QC mode on bank change
 #define BANK0_MODE SCENE_MODE
-#define BANK1_MODE SCENE_MODE
-#define BANK2_MODE PRESET_MODE
+#define BANK1_MODE PRESET_MODE
+#define BANK2_MODE 
 #define BANK3_MODE STOMP_MODE
 
 //Set the bank LED color
