@@ -1,10 +1,20 @@
 //Set mode names
-#define MOMENTARY 0
+#define STANDARD 0
 #define SPECIAL 1
 
 //Momentary mode state names
 #define PRESS 0
 #define RELEASE 1
+
+//EEPROM byte defines
+#define EXP1_UPPER_BYTE_1 0
+#define EXP1_UPPER_BYTE_2 1
+#define EXP1_LOWER_BYTE_1 2
+#define EXP1_LOWER_BYTE_2 3
+#define EXP2_UPPER_BYTE_1 4
+#define EXP2_UPPER_BYTE_2 5
+#define EXP2_LOWER_BYTE_1 6
+#define EXP2_LOWER_BYTE_2 7
 
 //Midi channel fallback
 #ifndef MIDI_CHANNEL
@@ -481,6 +491,74 @@
     } \
   }
 #endif //if LED_NUM > 1
+
+#define SET_BANK(num) \
+  if(!special_action){ \
+    special_action = true; \
+    bank = num; \
+    bank_changed = true; \
+    updateLEDflag = true; \
+    switch(num){ \
+      case 0: \
+        BANK0_MODE; \
+        break; \
+      case 1: \
+        BANK1_MODE; \
+        break; \
+      case 2: \
+        BANK2_MODE; \
+        break; \
+      case 3: \
+        BANK3_MODE; \
+        break; \
+      case 4: \
+        BANK4_MODE; \
+        break; \
+      case 5: \
+        BANK5_MODE; \
+        break; \
+      case 6: \
+        BANK6_MODE; \
+        break; \
+      case 7: \
+        BANK7_MODE; \
+        break; \
+      case 8: \
+        BANK8_MODE; \
+        break; \
+      case 9: \
+        BANK9_MODE; \
+        break; \
+      case 10: \
+        BANK10_MODE; \
+        break; \
+      case 11: \
+        BANK11_MODE; \
+        break; \
+      case 12: \
+        BANK12_MODE; \
+        break; \
+      case 13: \
+        BANK13_MODE; \
+        break; \
+      case 14: \
+        BANK14_MODE; \
+        break; \
+      case 15: \
+        BANK15_MODE; \
+        break; \
+    } \
+  }
+
+#define MOMENTARY_BANK(mom_bank) \
+  if(!special_action){ \
+    special_action = true; \
+    prev_bank = bank; \
+    bank = mom_bank; \
+    bank_changed = true; \
+    updateLEDflag = true; \
+  }
+
 
 #ifdef EXP1_PIN
 #ifndef EXP1_CALIBRATION_KEY

@@ -32,7 +32,6 @@ const int8_t buttonPins[FOOTSWITCH_NUM] = {FOOTSWITCH_PINS};
 Bugtton buttons(FOOTSWITCH_NUM, buttonPins, DEBOUNCE);
 #endif
 const uint8_t footswitch_mode[FOOTSWITCH_NUM] = {FOOTSWITCH_MODES};
-bool swap_pedals = false;
 
 const uint8_t led_order[LED_NUM] = LED_ORDER;
 CRGB leds[LED_NUM];
@@ -61,10 +60,12 @@ uint8_t convertVal2(uint16_t raw_val);
 
 bool ledState[LED_NUM];
 bool ledStatePrev[LED_NUM];
-uint8_t bank = 0;  
+uint8_t bank = 0;
+uint8_t prev_bank = 0;
 bool gig_open = false;
 bool tuner_open = false;
 bool bank_changed = false;
+bool swap_pedals = false;
 #ifdef SPECIAL_PIN
 bool btn_held[FOOTSWITCH_NUM + 1];
 #else
@@ -111,8 +112,8 @@ void setup(){
     #ifndef NO_EEPROM
     } else {
       //Read limits from EEPROM if no calibration happened
-      exp1_upper = EEPROM.read(0) << 8 | EEPROM.read(1);
-      exp1_lower = EEPROM.read(2) << 8 | EEPROM.read(3);
+      exp1_upper = EEPROM.read(EXP1_UPPER_BYTE_1) << 8 | EEPROM.read(EXP1_UPPER_BYTE_2);
+      exp1_lower = EEPROM.read(EXP1_LOWER_BYTE_1) << 8 | EEPROM.read(EXP1_LOWER_BYTE_2);
     #endif //ifndef NO_EEPROM
     }
   }
@@ -144,9 +145,8 @@ void setup(){
     #ifndef NO_EEPROM
     } else {
       //Read limits from EEPROM if no calibration happened
-      //TODO: Read saved limits from EEPROM
-      exp2_upper = EEPROM.read(4) << 8 | EEPROM.read(5);
-      exp2_lower = EEPROM.read(6) << 8 | EEPROM.read(7);
+      exp2_upper = EEPROM.read(EXP2_UPPER_BYTE_1) << 8 | EEPROM.read(EXP2_UPPER_BYTE_2);
+      exp2_lower = EEPROM.read(EXP2_LOWER_BYTE_1) << 8 | EEPROM.read(EXP2_LOWER_BYTE_2);
     #endif //ifndef NO_EEPROM
     }
   }
@@ -168,115 +168,20 @@ void loop(){
   //Update buttons
   buttons.update();
 
-  /*BEGIN SPECIAL BUTTON ACTIONS*/
+  /* BEGIN SPECIAL BUTTON ACTIONS */
   #ifdef SPECIAL_BUTTON
+  //Held action trigger
   if(buttons.heldUntil(FOOTSWITCH_NUM, HOLD_DURATION)){
     special_button_held = true;
     btn_held[FOOTSWITCH_NUM] = true;
     SPECIAL_HOLD_ACTION
-    // bank++;
-    // bank_changed = true;
-    // #ifndef NO_LED
-    // updateLEDflag = true;
-    // #endif
     
-    // //Reset bank if bank bound has been reached
-    // if(bank >= BANKS){
-    //   bank = 0;
-    // }
-    
-    // //Change QC mode
-    // switch(bank){
-    //   //Looper = Scene mode
-    //   case 0:
-    //     BANK0_MODE;
-    //     break;
-    //   //Scene Mode
-    //   case 1:
-    //     BANK1_MODE;
-    //     break;
-    //   //Preset Mode
-    //   case 2:
-    //     BANK2_MODE;
-    //     break;
-    //   //Stomp Mode
-    //   case 3:
-    //     BANK3_MODE;
-    //     break;
-    //   #if BANKS > 4
-    //   case 4:
-    //     BANK4_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 5
-    //   case 5:
-    //     BANK5_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 6
-    //   case 6:
-    //     BANK6_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 7
-    //   case 7:
-    //     BANK7_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 8
-    //   case 8:
-    //     BANK8_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 9
-    //   case 9:
-    //     BANK4_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 10
-    //   case 10:
-    //     BANK4_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 11
-    //   case 11:
-    //     BANK11_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 12
-    //   case 12:
-    //     BANK12_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 13
-    //   case 13:
-    //     BANK13_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 14
-    //   case 14:
-    //     BANK14_MODE;
-    //     break;
-    //   #endif
-    //   #if BANKS > 15
-    //   case 15:
-    //     BANK15_MODE;
-    //     break;
-    //   #endif
-    // }
-    
-    //Button released after bank change
+    //Button released after bank change, held action release
   } else if(buttons.rose(FOOTSWITCH_NUM)){
     if(special_button_held){
       btn_held[FOOTSWITCH_NUM] = false;
       special_button_held = false;
       SPECIAL_HOLD_ACTION_RELEASE
-    // if(bank_changed){
-    //   bank_changed = false;
-    //   updateLEDflag = true;
-    //   if(bank_led_mode[bank] != LED_ALL && bank_led_mode[bank] != LED_EXP1 && bank_led_mode[bank] != LED_EXP2){
-    //     turn_off_leds = true;
-    //   }
       
     //Button pressed normally
     } else {
@@ -285,7 +190,7 @@ void loop(){
     }
   }
   #endif //SPECIAL_BUTTON
-  /*END SPECIAL BUTTON ACTIONS*/
+  /* END SPECIAL BUTTON ACTIONS */
 
   //Call footswitch actions
   for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
@@ -294,6 +199,7 @@ void loop(){
         //Since this is the special mode, only call action on release
         if(buttons.fell(i)){
           btn_held[i] = true;
+          //If LED mode is set to momentary, turn on LED on press
           if(bank_led_mode[bank] == LED_MOMENTARY){
             ledState[i] = true;
             updateLEDflag = true;
@@ -301,6 +207,7 @@ void loop(){
           updateLEDflag = true;
         } else if(buttons.rose(i)){
           btn_held[i] = false;
+          //If LED mode is set to momentary, turn off LED on release
           if(bank_led_mode[bank] == LED_MOMENTARY){
             ledState[i] = false;
             updateLEDflag = true;
@@ -313,19 +220,35 @@ void loop(){
             } else {
               action(i, bank, PRESS);
             }
+            #ifndef NO_LED
             updateLEDflag = true;
+            #endif
+            //Reset bank if momentary mode is enabled
+            if(prev_bank != 255){
+              bank = prev_bank;
+              prev_bank = 255;
+              bank_changed = true;
+              updateLEDflag = true;
+            }
           }
         }
         break;
         
       default:
-        //Switch set to momentary mode, call actions on press and release
+        //Switch set to standard mode, call actions on press and release
         if(buttons.fell(i)){
           action(i, bank, PRESS);
           updateLEDflag = true;
+          //Reset bank if momentary mode is enabled
         } else if(buttons.rose(i)){
           action(i, bank, RELEASE);
           if(bank_led_mode[bank] == LED_MOMENTARY){
+            updateLEDflag = true;
+          }
+          if(prev_bank != 255){
+            bank = prev_bank;
+            prev_bank = 255;
+            bank_changed = true;
             updateLEDflag = true;
           }
         }
@@ -538,12 +461,12 @@ void loop(){
 #ifndef NO_LED
 void updateLEDs(void){
   if(bank_changed){
-    //Set led brightness to the normal brightness if not in EXP mode
-    if((bank_led_mode[bank] != LED_EXP1) && (bank_led_mode[bank] != LED_EXP2)){
+    //Set led brightness to the normal brightness if not in EXP mode or if pedal is not connected
+    if((bank_led_mode[bank] != LED_EXP1 || !exp1_connected) && (bank_led_mode[bank] != LED_EXP2 || !exp2_connected)){
       FastLED.setBrightness(LED_BRIGHTNESS);
     #ifdef EXP1_PIN
     //Set brightness according to EXP1 position when bank is changed
-    } else if(bank_led_mode[bank] == LED_EXP1){
+    } else if(bank_led_mode[bank] == LED_EXP1 && exp1_connected){
       exp1_val = analogRead(EXP1_PIN);
       exp1_val = constrain(exp1_val, exp1_lower, exp1_upper);
       FastLED.setBrightness(map(exp1_val, exp1_lower, exp1_upper, MIN_BRIGHTNESS, MAX_BRIGHTNESS));
@@ -551,22 +474,24 @@ void updateLEDs(void){
     #endif
     #ifdef EXP2_PIN
     //Set brightness according to EXP2 position when bank is changed
-    } else if(bank_led_mode[bank] == LED_EXP2){
+    } else if(bank_led_mode[bank] == LED_EXP2 && exp2_connected){
       exp2_val = analogRead(EXP2_PIN);
       exp2_val = constrain(exp2_val, exp2_lower, exp2_upper);
       FastLED.setBrightness(map(exp2_val, exp2_lower, exp2_upper, MIN_BRIGHTNESS, MAX_BRIGHTNESS));
       FastLED.show();
     #endif
     }
-    for(short i = 0; i < LED_NUM; i++){
+    //Turn on all LEDs
+    for(uint8_t i = 0; i < LED_NUM; i++){
       ledState[i] = true;
     }
   } else if(turn_off_leds){
-    for(short i = 0; i < LED_NUM; i++){
+    for(uint8_t i = 0; i < LED_NUM; i++){
       ledState[i] = false;
     }
     turn_off_leds = false;
   }
+  //Set the LED color according to the set bank color
   for(short i = 0; i < LED_NUM; i++){
     if(ledState[i]){
       switch(bank){
@@ -691,6 +616,7 @@ void calibrateExp(uint8_t pedal){
       exp1_lower = exp1_upper;
       while(!calibration_finished){
         val = analogRead(EXP1_PIN);
+        //Set the upper and lower limits
         if(val > exp1_upper){
           exp1_upper = val;
         }else if(val < exp1_lower){
@@ -707,12 +633,14 @@ void calibrateExp(uint8_t pedal){
         EXP_PEDAL_1(val);
         #endif //ifndef NO_CALIBRATION_ANIMATION
         buttons.update();
+        //Check if a button has been pressed to finish calibration
         for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
           if(buttons.fell(i)){
             while(!calibration_finished){
               buttons.update();
               if(buttons.rose(i)){
                 calibration_finished = true;
+                //Apply defined deadzones to limits
                 exp1_upper -= EXP1_DEADZONE;
                 exp1_lower += EXP1_DEADZONE;
                 //Reset btn_held to fix an issue
@@ -727,10 +655,11 @@ void calibrateExp(uint8_t pedal){
       }
       #ifndef NO_EEPROM
       #ifndef NO_EEPROM_WRITE
-      EEPROM.update(0, exp1_upper >> 8);
-      EEPROM.update(1, exp1_upper & 255);
-      EEPROM.update(2, exp1_lower >> 8);
-      EEPROM.update(3, exp1_lower & 255);
+      //EEPROM stores data in bytes, update only writes data if it is new
+      EEPROM.update(EXP1_UPPER_BYTE_1, exp1_upper >> 8);
+      EEPROM.update(EXP1_UPPER_BYTE_2, exp1_upper & 255);
+      EEPROM.update(EXP1_LOWER_BYTE_1, exp1_lower >> 8);
+      EEPROM.update(EXP1_LOWER_BYTE_2, exp1_lower & 255);
       #endif //ifndef NO_EEPROM_WRITE
       #endif //ifndef NO_EEPROM
       #endif //ifdef EXP1_PIN
@@ -764,6 +693,7 @@ void calibrateExp(uint8_t pedal){
               buttons.update(i);
               if(buttons.rose(i)){
                 calibration_finished = true;
+                //Apply defined deadzones to bounds
                 exp2_upper -= EXP2_DEADZONE;
                 exp2_lower += EXP2_DEADZONE
                 //Reset btn_held to fix an issue
@@ -778,10 +708,10 @@ void calibrateExp(uint8_t pedal){
       }
       #ifndef NO_EEPROM
       #ifndef NO_EEPROM_WRITE
-      EEPROM.update(4, exp2_upper >> 8);
-      EEPROM.update(5, exp2_upper & 255);
-      EEPROM.update(6, exp2_lower >> 8);
-      EEPROM.update(7, exp2_lower & 255);
+      EEPROM.update(EXP2_UPPER_BYTE_1, exp2_upper >> 8);
+      EEPROM.update(EXP2_UPPER_BYTE_2, exp2_upper & 255);
+      EEPROM.update(EXP2_LOWER_BYTE_1, exp2_lower >> 8);
+      EEPROM.update(EXP2_LOWER_BYTE_2, exp2_lower & 255);
       #endif //ifndef NO_EEPROM_WRITE
       #endif //ifndef NO_EEPROM
       #endif //ifdef EXP2_PIN
