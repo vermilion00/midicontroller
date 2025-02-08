@@ -70,7 +70,7 @@
 #define LED_EXP2 6 //All LEDs are on, brightness according to exp2 position
 
 #ifndef HOLD_DURATION
-  #define HOLD_DURATION 300 \\in ms
+  #define HOLD_DURATION 300
 #endif
 
 //Bank LED mode shortcut
@@ -499,6 +499,16 @@
 
 #ifndef MIN_BRIGHTNESS
   #define MIN_BRIGHTNESS 1
+#endif
+
+#ifndef SPECIAL_PRESS_ACTION
+  #define SPECIAL_PRESS_ACTION
+#endif
+#ifndef SPECIAL_HOLD_ACTION
+  #define SPECIAL_HOLD_ACTION
+#endif
+#ifndef SPECIAL_HOLD_ACTION_RELEASE
+  #define SPECIAL_HOLD_ACTION_RELEASE
 #endif
 
 //Fallback LED_NUM

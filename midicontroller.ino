@@ -26,6 +26,7 @@ void action(uint8_t i, uint8_t bank, bool state);
 #ifdef SPECIAL_BUTTON
 const int8_t buttonPins[FOOTSWITCH_NUM + 1] = {FOOTSWITCH_PINS,SPECIAL_PIN};
 Bugtton buttons(FOOTSWITCH_NUM + 1, buttonPins, DEBOUNCE);
+bool special_button_held = false;
 #else
 const int8_t buttonPins[FOOTSWITCH_NUM] = {FOOTSWITCH_PINS};
 Bugtton buttons(FOOTSWITCH_NUM, buttonPins, DEBOUNCE);
@@ -64,7 +65,11 @@ uint8_t bank = 0;
 bool gig_open = false;
 bool tuner_open = false;
 bool bank_changed = false;
+#ifdef SPECIAL_PIN
+bool btn_held[FOOTSWITCH_NUM + 1];
+#else
 bool btn_held[FOOTSWITCH_NUM];
+#endif
 bool special_action = false;
 bool any_button_held = false;
 bool updateLEDflag = false;
@@ -166,128 +171,117 @@ void loop(){
   /*BEGIN SPECIAL BUTTON ACTIONS*/
   #ifdef SPECIAL_BUTTON
   if(buttons.heldUntil(FOOTSWITCH_NUM, HOLD_DURATION)){
-    bank++;
-    bank_changed = true;
-    updateLEDflag = true;
+    special_button_held = true;
+    btn_held[FOOTSWITCH_NUM] = true;
+    SPECIAL_HOLD_ACTION
+    // bank++;
+    // bank_changed = true;
+    // #ifndef NO_LED
+    // updateLEDflag = true;
+    // #endif
     
-    //Reset bank if bank bound has been reached
-    if(bank >= BANKS){
-      bank = 0;
-    }
+    // //Reset bank if bank bound has been reached
+    // if(bank >= BANKS){
+    //   bank = 0;
+    // }
     
-    //Change QC mode
-    switch(bank){
-      //Looper = Scene mode
-      case 0:
-        BANK0_MODE;
-        break;
-      //Scene Mode
-      case 1:
-        BANK1_MODE;
-        break;
-      //Preset Mode
-      case 2:
-        BANK2_MODE;
-        break;
-      //Stomp Mode
-      case 3:
-        BANK3_MODE;
-        break;
-      #if BANKS > 4
-      case 4:
-        BANK4_MODE;
-        break;
-      #endif
-      #if BANKS > 5
-      case 5:
-        BANK5_MODE;
-        break;
-      #endif
-      #if BANKS > 6
-      case 6:
-        BANK6_MODE;
-        break;
-      #endif
-      #if BANKS > 7
-      case 7:
-        BANK7_MODE;
-        break;
-      #endif
-      #if BANKS > 8
-      case 8:
-        BANK8_MODE;
-        break;
-      #endif
-      #if BANKS > 9
-      case 9:
-        BANK4_MODE;
-        break;
-      #endif
-      #if BANKS > 10
-      case 10:
-        BANK4_MODE;
-        break;
-      #endif
-      #if BANKS > 11
-      case 11:
-        BANK11_MODE;
-        break;
-      #endif
-      #if BANKS > 12
-      case 12:
-        BANK12_MODE;
-        break;
-      #endif
-      #if BANKS > 13
-      case 13:
-        BANK13_MODE;
-        break;
-      #endif
-      #if BANKS > 14
-      case 14:
-        BANK14_MODE;
-        break;
-      #endif
-      #if BANKS > 15
-      case 15:
-        BANK15_MODE;
-        break;
-      #endif
-    }
+    // //Change QC mode
+    // switch(bank){
+    //   //Looper = Scene mode
+    //   case 0:
+    //     BANK0_MODE;
+    //     break;
+    //   //Scene Mode
+    //   case 1:
+    //     BANK1_MODE;
+    //     break;
+    //   //Preset Mode
+    //   case 2:
+    //     BANK2_MODE;
+    //     break;
+    //   //Stomp Mode
+    //   case 3:
+    //     BANK3_MODE;
+    //     break;
+    //   #if BANKS > 4
+    //   case 4:
+    //     BANK4_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 5
+    //   case 5:
+    //     BANK5_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 6
+    //   case 6:
+    //     BANK6_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 7
+    //   case 7:
+    //     BANK7_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 8
+    //   case 8:
+    //     BANK8_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 9
+    //   case 9:
+    //     BANK4_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 10
+    //   case 10:
+    //     BANK4_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 11
+    //   case 11:
+    //     BANK11_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 12
+    //   case 12:
+    //     BANK12_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 13
+    //   case 13:
+    //     BANK13_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 14
+    //   case 14:
+    //     BANK14_MODE;
+    //     break;
+    //   #endif
+    //   #if BANKS > 15
+    //   case 15:
+    //     BANK15_MODE;
+    //     break;
+    //   #endif
+    // }
     
     //Button released after bank change
   } else if(buttons.rose(FOOTSWITCH_NUM)){
-    if(bank_changed){
-      bank_changed = false;
-      updateLEDflag = true;
-      if(bank_led_mode[bank] != LED_ALL && bank_led_mode[bank] != LED_EXP1 && bank_led_mode[bank] != LED_EXP2){
-        turn_off_leds = true;
-      }
+    if(special_button_held){
+      btn_held[FOOTSWITCH_NUM] = false;
+      special_button_held = false;
+      SPECIAL_HOLD_ACTION_RELEASE
+    // if(bank_changed){
+    //   bank_changed = false;
+    //   updateLEDflag = true;
+    //   if(bank_led_mode[bank] != LED_ALL && bank_led_mode[bank] != LED_EXP1 && bank_led_mode[bank] != LED_EXP2){
+    //     turn_off_leds = true;
+    //   }
       
     //Button pressed normally
     } else {
-      switch(bank){
-        //Looper
-        case LOOPER_BANK:
-          if(!gig_open){
-            gig_open = true;
-            LOOPER_OPEN;
-          } else {
-            gig_open = false;
-            LOOPER_CLOSE;
-          }
-          break;
-        //Scenes
-        default:
-          if(!gig_open){
-            gig_open = true;
-            GIG_VIEW_OPEN;
-          } else {
-            gig_open = false;
-            GIG_VIEW_CLOSE;
-          }
-          break;
-      }
+      btn_held[FOOTSWITCH_NUM] = false;
+      SPECIAL_PRESS_ACTION
     }
   }
   #endif //SPECIAL_BUTTON
@@ -462,11 +456,19 @@ void loop(){
   }
 
   //Check if any button is pressed
+  #ifdef SPECIAL_PIN
+  for(uint8_t i = 0; i < FOOTSWITCH_NUM + 1; i++){
+    if(btn_held[i]){
+      any_button_held = true;
+    }
+  }
+  #else
   for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
     if(btn_held[i]){
       any_button_held = true;
     }
   }
+  #endif
   //Reset special actions
   if(bank_changed && !any_button_held){
     bank_changed = false;

@@ -63,12 +63,12 @@
 
 /* Special Button config */
 //Do you have a special button? Comment out if not
-//#define SPECIAL_BUTTON
+#define SPECIAL_BUTTON
 //To which Pin is that button connected?
-//#define SPECIAL_PIN 10
+#define SPECIAL_PIN 10
 //TODO: Make these a thing
-#define SPECIAL_HOLD_ACTION
-#define SPECIAL_PRESS_ACTION
+#define SPECIAL_HOLD_ACTION NEXT_BANK
+#define SPECIAL_PRESS_ACTION TUNER
 
 //Set the LED colors on Press/Release per bank
 //Comment the option out to leave the LED off
