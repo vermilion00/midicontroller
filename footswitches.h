@@ -1,3 +1,4 @@
+/* Footswitch config */
 //How many footswitches do you use? (4-16)
 #define FOOTSWITCH_NUM 8
 
@@ -5,30 +6,27 @@
 #define FOOTSWITCH_PINS 5,6,7,8,9,2,3,4
 
 //What are the modes of the footswitches?
-//0 = momentary, 1 = special
+    //0 = standard, 1 = special
     /* Footswitch number 0,1,2,3,4,5,6,7 */
 #define FOOTSWITCH_MODES 0,0,1,1,0,0,1,1
-
-//Set the special actions, leave empty if not needed
-//The corresponding switches need to be set to SPECIAL mode
-#define SPECIAL_2_3 NEXT_BANK
-#define SPECIAL_2_6 CALIBRATE_PEDALS
-#define SPECIAL_3_7 TUNER
-#define SPECIAL_6_7 GIG_LOOPER_VIEW
 
 //How long should the switches be debounced? Set it as low as possible without getting double inputs
 #define DEBOUNCE 30
 
-#define EXP1_CALIBRATION_KEY 4
-#define EXP2_CALIBRATION_KEY 5
+//Set the special actions, leave empty if not needed
+//The corresponding switches need to be set to SPECIAL mode
+#define SPECIAL_2_3 NEXT_BANK;
+#define SPECIAL_2_6 CALIBRATE_PEDALS;
+#define SPECIAL_3_7 TUNER;
+#define SPECIAL_6_7 GIG_LOOPER_VIEW;
 
 //Set the actions per bank, empty actions will have no effect
 //The option ending in "P" is called when the switch is pressed
-//The option ending in "R" is called when the switch is released (only in momentary mode)
+//The option ending in "R" is called when the switch is released (only in standard mode)
 //Switches set to "special" mode only support the press options
-//Use the _R action option if the action is set to momentary on the QC
+//The _R actions need the respective action set to momentary on the QC to work, else they'll be ignored
 //You can also call the press option again on release to emulate momentary behavior on actions
-//That only support latching modes, like Playing the looper
+//that only support latching modes, like Playing the looper
 #define BANK0BTN0P LOOPER_DUPLICATE;
 #define BANK0BTN0R
 #define BANK0BTN1P LOOPER_PUNCHIN;
@@ -40,9 +38,9 @@
 #define BANK0BTN4P LOOPER_RECORD;
 #define BANK0BTN4R LOOPER_RECORD_R;
 #define BANK0BTN5P LOOPER_PLAY;
-#define BANK0BTN5R
+#define BANK0BTN5R 
 #define BANK0BTN6P LOOPER_REVERSE;
-#define BANK0BTN6R
+#define BANK0BTN6R 
 #define BANK0BTN7P LOOPER_UNDO;
 #define BANK0BTN7R
 

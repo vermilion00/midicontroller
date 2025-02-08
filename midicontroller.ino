@@ -1,3 +1,4 @@
+#include <EEPROM.h>
 #include <MIDI.h> //V5.0.2
 #include <FastLED.h> //V3.9.13
 #include <Bugtton.h> //V1.0.6
@@ -10,12 +11,12 @@
  * Add momentary mode (special action) for switching presets (like one shot in QMK)
  * Allow momentary LED mode for single switches? Not much point otherwise
  * Fix Switches/LEDs getting stuck occasionally
- * Expand code to 16 banks, 16 switches and 16 LEDs - prob done
  * Clean up and generalize code
  * Simplify footswitch assignments to an array to make calling easier?
  * Maybe even a 2D array where rows are banks and cols are footswitches in that bank?
  * Would probs make individual footswitch led modes easier, also the code more compact
  * Allow for held combos (shouldn't be too difficult)
+ * Make special button actions assignable
  */
 
 MIDI_CREATE_DEFAULT_INSTANCE();
@@ -48,7 +49,6 @@ uint16_t prev1_val = 0;
 uint16_t exp2_val = 0;
 uint16_t conv2_val = 0;
 uint16_t prev2_val = 0;
-//TODO: Reset these to 0 once calibration/saving works
 uint16_t exp1_upper = 0;
 uint16_t exp1_lower = 0;
 uint16_t exp2_upper = 0;
@@ -78,7 +78,6 @@ void setup(){
   #endif
   //Serial.begin(38400);
   MIDI.begin(MIDI_CHANNEL_OMNI);
-  //TODO: Check if this works
   //Check if expression pedals are connected
   #ifdef EXP1_PIN
   //Set ADC prescaler to lower value
@@ -104,8 +103,13 @@ void setup(){
         }
       }
       calibrateExp(1); 
+    #ifndef NO_EEPROM
+    } else {
+      //Read limits from EEPROM if no calibration happened
+      exp1_upper = EEPROM.read(0) << 8 | EEPROM.read(1);
+      exp1_lower = EEPROM.read(2) << 8 | EEPROM.read(3);
+    #endif //ifndef NO_EEPROM
     }
-    //TODO: Read saved limits from EEPROM
   }
   #endif
   #ifdef EXP2_PIN
@@ -116,7 +120,7 @@ void setup(){
   exp2_val = analogRead(EXP2_PIN);
   if(exp2_val > EXP_THRESHOLD){
     exp2_connected = true;
-    //Start calibration if btn 1 is held at startup
+    //Start calibration if calibration key is held at startup
     if(!digitalRead(buttonPins[EXP2_CALIBRATION_KEY])){
       bool released_startup = false;
       #ifndef NO_LED
@@ -132,8 +136,14 @@ void setup(){
         } 
       }
       calibrateExp(2); 
+    #ifndef NO_EEPROM
+    } else {
+      //Read limits from EEPROM if no calibration happened
+      //TODO: Read saved limits from EEPROM
+      exp2_upper = EEPROM.read(4) << 8 | EEPROM.read(5);
+      exp2_lower = EEPROM.read(6) << 8 | EEPROM.read(7);
+    #endif //ifndef NO_EEPROM
     }
-    //TODO: Read saved limits from EEPROM
   }
   #endif
   //Turn on all LEDs at the start if the mode is set to LED_ALL, LED_EXP1 or LED_EXP2
@@ -475,7 +485,6 @@ void loop(){
   if(exp1_connected){
     exp1_val = analogRead(EXP1_PIN);
     conv1_val = convertVal1(exp1_val);
-    //MIDI.sendControlChange(1, conv1_val, MIDI_CHANNEL);
     if(prev1_val != conv1_val){
       prev1_val = conv1_val;
       if(!swap_pedals){
@@ -499,7 +508,6 @@ void loop(){
     conv2_val = convertVal2(exp2_val);
     if(prev2_val != conv2_val){
       prev2_val = conv2_val;
-      //MIDI.sendControlChange(2, conv2_val, MIDI_CHANNEL);
       if(!swap_pedals){
         EXP_PEDAL_2(conv2_val);
       } else {
@@ -644,10 +652,6 @@ void updateLEDs(void){
   }
   FastLED.show();
 }
-
-uint8_t buttonToLed(uint8_t i){
-  return(led_order[i]);
-}
 #endif //ifndef NO_LED
 
 //Expression Pedal stuff
@@ -665,8 +669,6 @@ uint8_t convertVal2(uint16_t raw_val){
 }
 #endif
 
-//TODO: Turn on LEDs if enabled
-//Set brightness of LEDs according to read position?
 #if defined EXP1_PIN || EXP2_PIN
 void calibrateExp(uint8_t pedal){
   #ifndef NO_LED
@@ -721,7 +723,14 @@ void calibrateExp(uint8_t pedal){
           }
         }
       }
-      //TODO: Save result to EEPROM
+      #ifndef NO_EEPROM
+      #ifndef NO_EEPROM_WRITE
+      EEPROM.update(0, exp1_upper >> 8);
+      EEPROM.update(1, exp1_upper & 255);
+      EEPROM.update(2, exp1_lower >> 8);
+      EEPROM.update(3, exp1_lower & 255);
+      #endif //ifndef NO_EEPROM_WRITE
+      #endif //ifndef NO_EEPROM
       #endif //ifdef EXP1_PIN
       break;
     case 2:
@@ -755,7 +764,7 @@ void calibrateExp(uint8_t pedal){
                 calibration_finished = true;
                 exp2_upper -= EXP2_DEADZONE;
                 exp2_lower += EXP2_DEADZONE
-                //Reset btn_held to hopefully fix an issue
+                //Reset btn_held to fix an issue
                 for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
                   btn_held[j] = false;
                 }
@@ -765,7 +774,14 @@ void calibrateExp(uint8_t pedal){
           }
         }
       }
-      //TODO: Save result to EEPROM
+      #ifndef NO_EEPROM
+      #ifndef NO_EEPROM_WRITE
+      EEPROM.update(4, exp2_upper >> 8);
+      EEPROM.update(5, exp2_upper & 255);
+      EEPROM.update(6, exp2_lower >> 8);
+      EEPROM.update(7, exp2_lower & 255);
+      #endif //ifndef NO_EEPROM_WRITE
+      #endif //ifndef NO_EEPROM
       #endif //ifdef EXP2_PIN
       break;
   }
@@ -783,7 +799,6 @@ void calibrateExp(uint8_t pedal){
   //Reset the brightness to the default level
   if((bank_led_mode[bank] != LED_EXP1) || bank_led_mode[bank] != LED_EXP2){
     FastLED.setBrightness(LED_BRIGHTNESS);
-    //FastLED.show();
   }
   updateLEDs();
   #endif //ifdef NO_LED
