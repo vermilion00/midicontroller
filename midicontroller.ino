@@ -8,8 +8,7 @@
 #include "actions.h"
 
 /*TODO:
- * Add momentary mode (special action) for switching presets (like one shot in QMK)
- * Allow momentary LED mode for single switches? Not much point otherwise
+ * Allow momentary LED mode for single switches?
  * Fix Switches/LEDs getting stuck occasionally
  * Clean up and generalize code
  * Simplify footswitch assignments to an array to make calling easier?
@@ -17,13 +16,14 @@
  * Would probs make individual footswitch led modes easier, also the code more compact
  * Allow for held combos (shouldn't be too difficult)
  * Make special button actions assignable
+ * Add SPECIAL_X_Y calls for more layouts (like 3x4 etc)
  */
 
 MIDI_CREATE_DEFAULT_INSTANCE();
 
 void action(uint8_t i, uint8_t bank, bool state);
 
-#ifdef SPECIAL_BUTTON
+#ifdef SPECIAL_PIN
 const int8_t buttonPins[FOOTSWITCH_NUM + 1] = {FOOTSWITCH_PINS,SPECIAL_PIN};
 Bugtton buttons(FOOTSWITCH_NUM + 1, buttonPins, DEBOUNCE);
 bool special_button_held = false;
@@ -97,11 +97,13 @@ void setup(){
     if(!digitalRead(buttonPins[EXP1_CALIBRATION_KEY])){
       bool released_startup = false;
       #ifndef NO_LED
+      //Turn on LED
       for(uint8_t i = 0; i < LED_NUM; i++){
         ledState[i] = true;
       }
       updateLEDs();
       #endif //ifndef NO_LED
+      //Check if button has been released
       while(!released_startup){
         released_startup = true;
         if(!digitalRead(buttonPins[EXP1_CALIBRATION_KEY])){
@@ -130,11 +132,13 @@ void setup(){
     if(!digitalRead(buttonPins[EXP2_CALIBRATION_KEY])){
       bool released_startup = false;
       #ifndef NO_LED
+      //Turn on all LEDs
       for(uint8_t i = 0; i < LED_NUM; i++){
         ledState[i] = true;
       }
       updateLEDs();
       #endif //ifndef NO_LED
+      //Wait for the button to be released
       while(!released_startup){ 
         released_startup = true; 
         if(!digitalRead(buttonPins[EXP2_CALIBRATION_KEY])){ 
@@ -157,11 +161,11 @@ void setup(){
   for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
     ledState[i] = true;
   }
-  #else
+  #else //BANK0_LED_MODE == LED_ALL || BANK0_LED_MODE == LED_EXP1 || BANK0_LED_MODE == LED_EXP2
   turn_off_leds = true;
   updateLEDs();
-  #endif
-  #endif
+  #endif //BANK0_LED_MODE == LED_ALL || BANK0_LED_MODE == LED_EXP1 || BANK0_LED_MODE == LED_EXP2
+  #endif //ifndef NO_LED
 }
 
 void loop(){
@@ -169,7 +173,7 @@ void loop(){
   buttons.update();
 
   /* BEGIN SPECIAL BUTTON ACTIONS */
-  #ifdef SPECIAL_BUTTON
+  #ifdef SPECIAL_PIN
   //Held action trigger
   if(buttons.heldUntil(FOOTSWITCH_NUM, HOLD_DURATION)){
     special_button_held = true;
@@ -189,7 +193,7 @@ void loop(){
       SPECIAL_PRESS_ACTION
     }
   }
-  #endif //SPECIAL_BUTTON
+  #endif //SPECIAL_PIN
   /* END SPECIAL BUTTON ACTIONS */
 
   //Call footswitch actions
@@ -239,12 +243,13 @@ void loop(){
         if(buttons.fell(i)){
           action(i, bank, PRESS);
           updateLEDflag = true;
-          //Reset bank if momentary mode is enabled
         } else if(buttons.rose(i)){
           action(i, bank, RELEASE);
+          //Turn off LED if momentary LED mode is active
           if(bank_led_mode[bank] == LED_MOMENTARY){
             updateLEDflag = true;
           }
+          //Reset the bank if momentary mode was active
           if(prev_bank != 255){
             bank = prev_bank;
             prev_bank = 255;
@@ -343,6 +348,14 @@ void loop(){
     SPECIAL_4_10
   } else if(btn_held[5] && btn_held[11]){
     SPECIAL_5_11
+  } else if(btn_held[4] && btn_held[8]){
+    SPECIAL_4_8
+  } else if(btn_held[5] && btn_held[9]){
+    SPECIAL_5_9
+  } else if(btn_held[6] && btn_held[10]){
+    SPECIAL_6_10
+  } else if(btn_held[7] && btn_held[11]){
+    SPECIAL_7_11
   #elif FOOTSWITCH_NUM == 14
   } else if(btn_held[0] && btn_held[7]){
     SPECIAL_0_7
@@ -375,6 +388,14 @@ void loop(){
     SPECIAL_6_14
   } else if(btn_held[7] && btn_held[15]){
     SPECIAL_7_15
+  } else if(btn_held[8] && btn_held[12]){
+    SPECIAL_8_12
+  } else if(btn_held[9] && btn_held[13]){
+    SPECIAL_9_13
+  } else if(btn_held[10] && btn_held[14]){
+    SPECIAL_10_14
+  } else if(btn_held[11] && btn_held[15]){
+    SPECIAL_11_15
   #endif
   }
 
@@ -410,6 +431,7 @@ void loop(){
   if(exp1_connected){
     exp1_val = analogRead(EXP1_PIN);
     conv1_val = convertVal1(exp1_val);
+    //Only send midi data if it has changed
     if(prev1_val != conv1_val){
       prev1_val = conv1_val;
       if(!swap_pedals){
@@ -431,6 +453,7 @@ void loop(){
   if(exp2_connected){
     exp2_val = analogRead(EXP2_PIN);
     conv2_val = convertVal2(exp2_val);
+    //Only send midi data if is has been updated
     if(prev2_val != conv2_val){
       prev2_val = conv2_val;
       if(!swap_pedals){
@@ -672,6 +695,7 @@ void calibrateExp(uint8_t pedal){
       exp2_lower = exp2_upper;
       while(!calibration_finished){
         val = analogRead(EXP2_PIN);
+        //Set the upper and lower limits of the expression pedal
         if(val > exp2_upper){
           exp2_upper = val;
         }else if(val < exp2_lower){
@@ -687,6 +711,7 @@ void calibrateExp(uint8_t pedal){
         EXP_PEDAL_2(val);
         #endif //ifndef NO_CALIBRATION_ANIMATION
         buttons.update();
+        //Check if a button has been pressed to end calibration
         for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
           if(buttons.fell(i)){
             while(!calibration_finished){
@@ -708,6 +733,7 @@ void calibrateExp(uint8_t pedal){
       }
       #ifndef NO_EEPROM
       #ifndef NO_EEPROM_WRITE
+      //Write the new bounds to the EEPROM, update only writes data if it is new
       EEPROM.update(EXP2_UPPER_BYTE_1, exp2_upper >> 8);
       EEPROM.update(EXP2_UPPER_BYTE_2, exp2_upper & 255);
       EEPROM.update(EXP2_LOWER_BYTE_1, exp2_lower >> 8);
@@ -719,11 +745,14 @@ void calibrateExp(uint8_t pedal){
   }
   #ifndef NO_LED
   //Reset LEDs to previous state
+  //TODO: Check if this is necessary, might be possible to just restore the previous state
   if(bank_led_mode[bank] == LED_ALL || bank_led_mode[bank] == LED_EXP1 || bank_led_mode[bank] == LED_EXP2){
+    //Turn on all LEDs
     for(uint8_t i = 0; i < LED_NUM; i++){
       ledState[i] = true;
     }
   } else {
+    //Restore previous LED state
     for(uint8_t i = 0; i < LED_NUM; i++){
       ledState[i] = ledStatePrev[i];
     }

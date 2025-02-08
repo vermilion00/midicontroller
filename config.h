@@ -10,8 +10,8 @@
 //Defaults to DEFAULT_MODE when uncommented
 //Leave blank to avoid setting the QC mode on bank change
 #define BANK0_MODE SCENE_MODE
-#define BANK1_MODE PRESET_MODE
-#define BANK2_MODE 
+#define BANK1_MODE SCENE_MODE
+#define BANK2_MODE PRESET_MODE
 #define BANK3_MODE STOMP_MODE
 //Do you have a Looper bank? Opening gig view on this bank will open the Looper view instead
 //If GIG_LOOPER_VIEW is assigned to an action
@@ -62,30 +62,18 @@
 #define EXP_THRESHOLD 100
 
 /* Special Button config */
-//Do you have a special button? Comment out if not
-#define SPECIAL_BUTTON
-//To which Pin is that button connected?
+//Do you have a special button? To which Pin is that button connected?
+//Comment it out if you don't use one
 #define SPECIAL_PIN 10
-//TODO: Make these a thing
+//The hold action is called when the special button is held for longer than HOLD_DURATION
 #define SPECIAL_HOLD_ACTION NEXT_BANK
+//The press action is called otherwise
 #define SPECIAL_PRESS_ACTION TUNER
+//The duration to hold the button for to call SPECIAL_HOLD_ACTION in ms
+#define HOLD_DURATION 300
 
-//Set the LED colors on Press/Release per bank
-//Comment the option out to leave the LED off
-//TODO: Allow per key color mapping or delete this
-#define BANK0_SWITCH0_P
-#define BANK0_SWITCH0_R
-#define BANK0_SWITCH1_P
-#define BANK0_SWITCH1_R
-#define BANK0_SWITCH2_P
-#define BANK0_SWITCH2_R
-#define BANK0_SWITCH3_P
-#define BANK0_SWITCH3_R
-#define BANK0_SWITCH4_P
-#define BANK0_SWITCH4_R
-#define BANK0_SWITCH5_P
-#define BANK0_SWITCH5_R
-#define BANK0_SWITCH6_P
-#define BANK0_SWITCH6_R
-#define BANK0_SWITCH7_P
-#define BANK0_SWITCH7_R
+/* EEPROM Config */
+//Uncomment to complete disable EEPROM access, read and write
+//#define NO_EEPROM
+//Uncomment to disable EEPROM Write access, will still read the saved data
+//#define NO_EEPROM_WRITE

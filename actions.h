@@ -939,6 +939,34 @@
 #ifndef SPECIAL_7_15
   #define SPECIAL_7_15
 #endif
+//Random Layouts
+//3x4
+#ifndef SPECIAL_4_8
+  #define SPECIAL_4_8
+#endif
+#ifndef SPECIAL_5_9
+  #define SPECIAL_5_9
+#endif
+#ifndef SPECIAL_6_10
+  #define SPECIAL_6_10
+#endif
+#ifndef SPECIAL_7_11
+  #define SPECIAL_7_11
+#endif
+//4x4
+#ifndef SPECIAL_8_12
+  #define SPECIAL_8_12
+#endif
+#ifndef SPECIAL_9_13
+  #define SPECIAL_9_13
+#endif
+#ifndef SPECIAL_10_14
+  #define SPECIAL_10_14
+#endif
+#ifndef SPECIAL_11_15
+  #define SPECIAL_11_15
+#endif
+
 
 //Button action fallbacks
 //Bank 0
