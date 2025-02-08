@@ -17,6 +17,7 @@
  * Allow for held combos (shouldn't be too difficult)
  * Make special button actions assignable
  * Add SPECIAL_X_Y calls for more layouts (like 3x4 etc)
+ * Add EXP hot plug with define
  */
 
 MIDI_CREATE_DEFAULT_INSTANCE();
@@ -91,6 +92,7 @@ void setup(){
   //Dummy analog conversion
   exp1_val = analogRead(EXP1_PIN);
   exp1_val = analogRead(EXP1_PIN);
+  //Check if EXP1 is connected
   if(exp1_val > EXP_THRESHOLD){
     exp1_connected = true;
     //Start calibration if calibration key is held at startup
@@ -126,6 +128,7 @@ void setup(){
   //Dummy analog conversion
   exp2_val = analogRead(EXP2_PIN);
   exp2_val = analogRead(EXP2_PIN);
+  //Check if EXP2 is connected
   if(exp2_val > EXP_THRESHOLD){
     exp2_connected = true;
     //Start calibration if calibration key is held at startup
@@ -425,7 +428,28 @@ void loop(){
     special_action = false;
   }
   any_button_held = false;
-  
+
+  //TODO: Make this check only every ~100 cycles or so
+  #ifdef EXP_HOT_PLUG
+  #ifdef EXP1_PIN
+  if(!exp1_connected){
+    //TODO: Check if dummy read is necessary (maybe if its not checked every cycle)
+    exp1_val = analogRead(EXP1_PIN);
+    if(exp1_val > EXP_THRESHOLD){
+      exp1_connected = true;
+    }
+  }
+  #endif //ifdef EXP1_PIN
+  #ifdef EXP2_PIN
+  if(!exp2_connected){
+    //TODO: Check if dummy read is necessary (maybe if its not checked every cycle)
+    exp2_val = analogRead(EXP2_PIN);
+    if(exp2_val > EXP_THRESHOLD){
+      exp2_connected = true;
+    }
+  }
+  #endif //ifdef EXP2_PIN
+  #endif //ifdef EXP_HOT_PLUG
   //Update Expression Pedals
   #ifdef EXP1_PIN
   if(exp1_connected){

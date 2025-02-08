@@ -60,6 +60,8 @@
 //TODO: Check if pedal detection even works
 //Set the threshold to a value below what the ADC reads when a pedal is connected for pedal detection to work
 #define EXP_THRESHOLD 100
+//Allow EXP pedals to be connected during operation
+//#define EXP_HOT_PLUG
 
 /* Special Button config */
 //Do you have a special button? To which Pin is that button connected?
