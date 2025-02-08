@@ -12,7 +12,7 @@
 //Set the special actions, leave empty if not needed
 //The corresponding switches need to be set to SPECIAL mode
 #define SPECIAL_2_3 NEXT_BANK
-#define SPECIAL_2_6 CALIBRATE_PEDAL_1
+#define SPECIAL_2_6 CALIBRATE_PEDALS
 #define SPECIAL_3_7 TUNER
 #define SPECIAL_6_7 GIG_LOOPER_VIEW
 

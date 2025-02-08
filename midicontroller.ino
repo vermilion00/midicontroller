@@ -1,5 +1,3 @@
-//#include <avdweb_AnalogReadFast.h> //V1.0.0
-//#include <AnalogIO.h> //V1.1.1
 #include <MIDI.h> //V5.0.2
 #include <FastLED.h> //V3.9.13
 #include <Bugtton.h> //V1.0.6
@@ -19,14 +17,7 @@
  * Simplify footswitch assignments to an array to make calling easier?
  * Maybe even a 2D array where rows are banks and cols are footswitches in that bank?
  * Would probs make individual footswitch led modes easier, also the code more compact
- * 
- * Exp Calibration:
- * Add special action to trigger calibration
- * If switch 0 is pressed next, calibrate Exp1
- * If switch 1 is pressed next, calibrate Exp2
- * Read min and max values
- * Save result to eeprom when sw0/1 is pressed again
- * Read if pedal is connected at startup
+ * Check if startup calibration works
  */
 
 MIDI_CREATE_DEFAULT_INSTANCE();
@@ -81,8 +72,6 @@ bool any_button_held = false;
 bool updateLEDflag = false;
 bool turn_off_leds = false;
 uint8_t bank_led_mode[16] = {BANK0_LED_MODE, BANK1_LED_MODE, BANK2_LED_MODE, BANK3_LED_MODE, BANK4_LED_MODE, BANK5_LED_MODE, BANK6_LED_MODE, BANK7_LED_MODE, BANK8_LED_MODE, BANK9_LED_MODE, BANK10_LED_MODE, BANK11_LED_MODE, BANK12_LED_MODE, BANK13_LED_MODE, BANK14_LED_MODE, BANK15_LED_MODE};
-bool released_startup = false;
-bool calibrationFinished = false;
 
 void setup(){
   #ifndef NO_LED
@@ -105,6 +94,7 @@ void setup(){
     //Start calibration if btn 0 is held at startup
     buttons.update();
     if(buttons.held(0)){
+      bool released_startup = false;
       while(!released_startup){ 
         released_startup = true; 
         buttons.update(); 
@@ -131,6 +121,7 @@ void setup(){
     //Start calibration if btn 1 is held at startup
     buttons.update();
     if(buttons.held(1)){
+      bool released_startup = false;
       while(!released_startup){ 
         released_startup = true; 
         buttons.update(); 
@@ -293,9 +284,8 @@ void loop(){
   /*END SPECIAL BUTTON ACTIONS*/
 
   //Call footswitch actions
-  for(short i = 0; i < FOOTSWITCH_NUM; i++){
+  for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
     switch(footswitch_mode[i]){
-      //Special Mode
       case SPECIAL:
         //Since this is the special mode, only call action on release
         if(buttons.fell(i)){
@@ -325,7 +315,7 @@ void loop(){
         break;
         
       default:
-      //Switch set to momentary mode, call actions on press and release
+        //Switch set to momentary mode, call actions on press and release
         if(buttons.fell(i)){
           action(i, bank, PRESS);
           updateLEDflag = true;
@@ -340,7 +330,6 @@ void loop(){
   }
   
   //Check if special actions need to be called
-  //Special action if buttons 2 & 3 are held
   //Horizontal combos
   if(btn_held[0] && btn_held[1]){
     SPECIAL_0_1
@@ -546,13 +535,16 @@ void updateLEDs(void){
     //Set brightness according to EXP1 position when bank is changed
     } else if(bank_led_mode[bank] == LED_EXP1){
       exp1_val = analogRead(EXP1_PIN);
+      exp1_val = constrain(exp1_val, exp1_lower, exp1_upper);
       FastLED.setBrightness(map(exp1_val, exp1_lower, exp1_upper, MIN_BRIGHTNESS, MAX_BRIGHTNESS));
+      FastLED.show();
     #endif
     #ifdef EXP2_PIN
     //Set brightness according to EXP2 position when bank is changed
     } else if(bank_led_mode[bank] == LED_EXP2){
       exp2_val = analogRead(EXP2_PIN);
       FastLED.setBrightness(map(exp2_val, exp2_lower, exp2_upper, MIN_BRIGHTNESS, MAX_BRIGHTNESS));
+      FastLED.show();
     #endif
     }
     for(short i = 0; i < LED_NUM; i++){
@@ -681,7 +673,7 @@ void calibrateExp(uint8_t pedal){
   for(uint8_t i = 0; i < LED_NUM; i++){
     ledState[i] = true;
   }
-  FastLED.show();
+  updateLEDs();
   #endif
   bool calibration_finished = false;
   uint16_t val = 0;
@@ -700,6 +692,7 @@ void calibrateExp(uint8_t pedal){
           exp1_lower = val;
         }
         //Set LED brightness according to pedal position
+        #ifndef NO_CALIBRATION_ANIMATION
         #ifndef NO_LED
         FastLED.setBrightness(map(val, exp1_lower, exp1_upper, MIN_BRIGHTNESS, MAX_BRIGHTNESS));
         FastLED.show();
@@ -707,19 +700,20 @@ void calibrateExp(uint8_t pedal){
         //Send position over MIDI during calibration
         val = map(val, exp1_lower, exp1_upper, 0, 127);
         EXP_PEDAL_1(val);
+        #endif //ifndef NO_CALIBRATION_ANIMATION
         buttons.update();
         //TODO: Make sure this doesn't instantly cancel
         for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){
-          if(buttons.held(i)){
+          if(buttons.rose(i)){
             calibration_finished = true;
             exp1_upper -= EXP1_DEADZONE;
             exp1_lower += EXP1_DEADZONE;
-            //break;
+            //Reset btn_held to hopefully fix an issue
+            for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
+              btn_held[j] = false;
+            }
+            break;
           }
-        }
-        if(calibration_finished){
-          TUNER_OPEN;
-          break;
         }
       }
       //TODO: Save result to EEPROM
@@ -739,20 +733,26 @@ void calibrateExp(uint8_t pedal){
           exp2_lower = val;
         }
         //Set LED brightness according to pedal position
+        #ifndef NO_CALIBRATION_ANIMATION
         #ifndef NO_LED
         FastLED.setBrightness(map(val, exp2_lower, exp2_upper, MIN_BRIGHTNESS, MAX_BRIGHTNESS));
         FastLED.show();
         #endif //ifndef NO_LED
         val = map(val, exp2_lower, exp2_upper, 0, 127);
         EXP_PEDAL_2(val);
+        #endif //ifndef NO_CALIBRATION_ANIMATION
         buttons.update();
         //TODO: Make sure this doesn't instantly cancel
         for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){
-          if(buttons.fell(i)){
+          if(buttons.rose(i)){
             calibration_finished = true;
             exp2_upper -= EXP2_DEADZONE;
-            exp2_lower += EXP2_DEADZONE;
-            //break;
+            exp2_lower += EXP2_DEADZONE
+            //Reset btn_held to hopefully fix an issue
+            for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
+              btn_held[j] = false;
+            }
+            break;
           }
         }
       }
@@ -762,8 +762,14 @@ void calibrateExp(uint8_t pedal){
   }
   #ifndef NO_LED
   //Reset LEDs to previous state
-  for(uint8_t i = 0; i < LED_NUM; i++){
-    ledState[i] = ledStatePrev[i];
+  if(bank_led_mode[bank] == LED_ALL || bank_led_mode[bank] == LED_EXP1 || bank_led_mode[bank] == LED_EXP2){
+    for(uint8_t i = 0; i < LED_NUM; i++){
+      ledState[i] = true;
+    }
+  } else {
+    for(uint8_t i = 0; i < LED_NUM; i++){
+      ledState[i] = ledStatePrev[i];
+    }
   }
   //Reset the brightness to the default level
   if((bank_led_mode[bank] != LED_EXP1) || bank_led_mode[bank] != LED_EXP2){

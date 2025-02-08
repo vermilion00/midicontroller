@@ -214,9 +214,66 @@
     } \
   }
 
-//Swap Exp pedals
-#define SWAP_PEDALS \
-  swap_pedals = !swap_pedals;
+#define PREV_BANK \
+  if(!special_action){ \
+    special_action = true; \
+    bank--; \
+    bank_changed = true; \
+    updateLEDflag = true; \
+    if(bank >= BANKS){ \
+      bank = BANKS - 1; \
+    } \
+    switch(bank){ \
+      case 0: \
+        BANK0_MODE; \
+        break; \
+      case 1: \
+        BANK1_MODE; \
+        break; \
+      case 2: \
+        BANK2_MODE; \
+        break; \
+      case 3: \
+        BANK3_MODE; \
+        break; \
+      case 4: \
+        BANK4_MODE; \
+        break; \
+      case 5: \
+        BANK5_MODE; \
+        break; \
+      case 6: \
+        BANK6_MODE; \
+        break; \
+      case 7: \
+        BANK7_MODE; \
+        break; \
+      case 8: \
+        BANK8_MODE; \
+        break; \
+      case 9: \
+        BANK9_MODE; \
+        break; \
+      case 10: \
+        BANK10_MODE; \
+        break; \
+      case 11: \
+        BANK11_MODE; \
+        break; \
+      case 12: \
+        BANK12_MODE; \
+        break; \
+      case 13: \
+        BANK13_MODE; \
+        break; \
+      case 14: \
+        BANK14_MODE; \
+        break; \
+      case 15: \
+        BANK15_MODE; \
+        break; \
+    } \
+  }
 
 //Reset bank to 0
 #define RESET_BANK \
@@ -226,202 +283,182 @@
     bank_changed = true; \
     updateLEDflag = true; \
   } \
-  BANK0_MODE;
+  BANK0_MODE
 
-#define TEST calibrateExp(1);
+//Swap Expression pedals
+#define SWAP_PEDALS \
+  if(!special_action){ \
+    special_action = true; \
+    swap_pedals = !swap_pedals; \
+  }
 
+#if defined EXP1_PIN && EXP2_PIN
+  #define CALIBRATE_PEDAL CALIBRATE_PEDALS
+#elif defined EXP1_PIN
+  #define CALIBRATE_PEDAL CALIBRATE_PEDAL_1
+#elif defined EXP2_PIN
+  #define CALIBRATE_PEDAL CALIBRATE_PEDAL_2
+#endif
 
 #if LED_NUM > 1
 #define CALIBRATE_PEDAL_1 \
-  bool startCalibration = false; \
-  for(uint8_t i = 0; i < LED_NUM; i++){ \
-    ledStatePrev[i] = ledState[i]; \
-  } \
-  while(!startCalibration){ \
-    startCalibration = true; \
-    buttons.update(); \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        startCalibration = true; \
+  if(!special_action){ \
+    special_action = true; \
+    bool startCalibration = false; \
+    for(uint8_t i = 0; i < LED_NUM; i++){ \
+      ledStatePrev[i] = ledState[i]; \
+    } \
+    while(!startCalibration){ \
+      startCalibration = true; \
+      buttons.update(); \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          startCalibration = false; \
+        } \
       } \
     } \
-  } \
-  startCalibration = false; \
-  calibrateExp(1);
+    calibrateExp(1); \
+  }
 
 #define CALIBRATE_PEDAL_2 \
-  bool startCalibration = false; \
-  for(uint8_t i = 0; i < LED_NUM; i++){ \
-    ledStatePrev[i] = ledState[i]; \
-  } \
-  while(!startCalibration){ \
-    startCalibration = true; \
-    buttons.update(); \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        startCalibration = false; \
-        break; \
+  if(!special_action){ \
+    special_action = true; \
+    bool startCalibration = false; \
+    for(uint8_t i = 0; i < LED_NUM; i++){ \
+      ledStatePrev[i] = ledState[i]; \
+    } \
+    while(!startCalibration){ \
+      startCalibration = true; \
+      buttons.update(); \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          startCalibration = false; \
+        } \
       } \
     } \
-  } \
-  calibrateExp(2);
-
-  #define CALIBRATE_PEDALS \
-  calibrationFinished = false; \
-  bool startCalibration1 = false; \
-  bool startCalibration2 = false; \
-  for(uint8_t i = 0; i < LED_NUM; i++){ \
-    ledStatePrev[i] = ledState[i]; \
-  } \
-  for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-    ledState[i] = false; \
-  } \
-  ledState[0] = true; \
-  ledState[1] = true; \
-  updateLEDs(); \
-  while(!calibrationFinished){ \
-    calibrationFinished = true; \
-    buttons.update(); \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        calibrationFinished = false; \
-        break; \
-      } \
-    } \
-  } \
-  calibrationFinished = false; \
-  while(!calibrationFinished){ \
-    calibrationFinished = false; \
-    buttons.update(); \
-    if(buttons.held(0)){ \
-      startCalibration1 = true; \
-      calibrationFinished = true; \
-    } else if(buttons.held(1)){ \
-      startCalibration2 = true; \
-      calibrationFinished = true; \
-    } \
-    for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        calibrationFinished = true; \
-        ledState[0] = false; \
-        ledState[1] = false; \
-        updateLEDs(); \
-      } \
-    } \
-  } \
-  if(startCalibration1){ \
-    startCalibration1 = false; \
-    calibrateExp(1); \
-  } else if(startCalibration2){ \
-    startCalibration2 = false; \
-    calibrateExp(2); \
-  } \
-  calibrationFinished = false;
-
-/*
-#define CALIBRATE_PEDALS \
-  bool finished = false; \
-  bool startCalibration1 = false; \
-  bool startCalibration2 = false; \
-  for(uint8_t i = 0; i < LED_NUM; i++){ \
-    ledStatePrev[i] = ledState[i]; \
-  } \
-  for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-    ledState[i] = false; \
-  } \
-  ledState[0] = true; \
-  ledState[1] = true; \
-  updateLEDs(); \
-  while(!finished){ \
-    finished = true; \
-    buttons.update(); \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        finished = false; \
-        break; \
-      } \
-    } \
-  } \
-  finished = false; \
-  while(!finished){ \
-    finished = false; \
-    buttons.update(); \
-    if(buttons.held(0)){ \
-      startCalibration1 = true; \
-      finished = true; \
-    } else if(buttons.held(1)){ \
-      startCalibration2 = true; \
-      finished = true; \
-    } \
-    for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        finished = true; \
-        ledState[0] = false; \
-        ledState[1] = false; \
-        updateLEDs(); \
-      } \
-    } \
-  } \
-  if(startCalibration1){ \
-    calibrateExp(1); \
-  } else if(startCalibration2){ \
     calibrateExp(2); \
   }
-*/
+
+//Do I even need to check if special action is set? Can't I just set it?
+#define CALIBRATE_PEDALS \
+  if(!special_action){ \
+    special_action = true; \
+    bool calibrationFinished = false; \
+    bool startCalibration1 = false; \
+    bool startCalibration2 = false; \
+    for(uint8_t i = 0; i < LED_NUM; i++){ \
+      ledStatePrev[i] = ledState[i]; \
+    } \
+    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+      ledState[i] = false; \
+    } \
+    ledState[0] = true; \
+    ledState[1] = true; \
+    updateLEDs(); \
+    while(!calibrationFinished){ \
+      calibrationFinished = true; \
+      buttons.update(); \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          calibrationFinished = false; \
+        } \
+      } \
+    } \
+    calibrationFinished = false; \
+    while(!calibrationFinished){ \
+      calibrationFinished = false; \
+      buttons.update(); \
+      if(buttons.held(0)){ \
+        startCalibration1 = true; \
+        calibrationFinished = true; \
+      } else if(buttons.held(1)){ \
+        startCalibration2 = true; \
+        calibrationFinished = true; \
+      } \
+      for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          calibrationFinished = true; \
+          ledState[0] = false; \
+          ledState[1] = false; \
+          updateLEDs(); \
+        } \
+      } \
+    } \
+    if(startCalibration1){ \
+      calibrateExp(1); \
+    } else if(startCalibration2){ \
+      calibrateExp(2); \
+    } \
+  }
+
 #else
 #define CALIBRATE_PEDAL_1 \
-  bool startCalibration = false; \
-  while(!startCalibration){ \
-    startCalibration = true; \
-    buttons.update(); \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        startCalibration = false; \
-        break; \
+  if(!special_action){ \
+    special_action = true; \
+    while(!startCalibration){ \
+      startCalibration = true; \
+      buttons.update(); \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          startCalibration = false; \
+        } \
       } \
     } \
-  } \
-  calibrateExp(1);
+    calibrateExp(1); \
+  }
 
 #define CALIBRATE_PEDAL_2 \
-  bool startCalibration = false; \
-  while(!startCalibration){ \
-    startCalibration = true; \
-    buttons.update(); \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        startCalibration = false; \
-        break; \
+  if(!special_action){ \
+    special_action = true; \
+    bool startCalibration = false; \
+    while(!startCalibration){ \
+      startCalibration = true; \
+      buttons.update(); \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          startCalibration = false; \
+        } \
       } \
     } \
-  } \
-  calibrateExp(2);
+    calibrateExp(2); \
+  }
 
 #define CALIBRATE_PEDALS \
-  bool finished = false; \
-  while(!finished){ \
-    finished = true; \
-    buttons.update(); \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        finished = false; \
+  if(!special_action){ \
+    special_action = true; \
+    bool calibrationFinished = false; \
+    bool startCalibration1 = false; \
+    bool startCalibration2 = false; \
+    while(!calibrationFinished){ \
+      calibrationFinished = true; \
+      buttons.update(); \
+      for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          calibrationFinished = false; \
+        } \
       } \
     } \
-  } \
-  finished = false; \
-  while(!finished){ \
-    buttons.update(); \
-    if(buttons.held(0)){ \
+    calibrationFinished = false; \
+    while(!calibrationFinished){ \
+      calibrationFinished = false; \
+      buttons.update(); \
+      if(buttons.held(0)){ \
+        startCalibration1 = true; \
+        calibrationFinished = true; \
+      } else if(buttons.held(1)){ \
+        startCalibration2 = true; \
+        calibrationFinished = true; \
+      } \
+      for(uint8_t i = 2; i < FOOTSWITCH_NUM; i++){ \
+        if(buttons.held(i)){ \
+          calibrationFinished = true; \
+        } \
+      } \
+    } \
+    if(startCalibration1){ \
       calibrateExp(1); \
-      finished = true; \
-    } else if(buttons.held(1)){ \
+    } else if(startCalibration2){ \
       calibrateExp(2); \
-      finished = true; \
-    } \
-    for(uint8_t i = 0; i < FOOTSWITCH_NUM; i++){ \
-      if(buttons.held(i)){ \
-        finished = true; \
-      } \
     } \
   }
 #endif //if LED_NUM > 1
