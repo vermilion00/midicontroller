@@ -90,7 +90,6 @@
 #define LOOPER_RECORD MIDI.sendControlChange(53, 127, MIDI_CHANNEL)
 #define LOOPER_RECORD_R MIDI.sendControlChange(53, 0, MIDI_CHANNEL)
 #define LOOPER_PLAY MIDI.sendControlChange(54, 127, MIDI_CHANNEL)
-#define LOOPER_PLAY_R MIDI.sendControlChange(54, 127, MIDI_CHANNEL)
 #define LOOPER_REVERSE MIDI.sendControlChange(55, 127, MIDI_CHANNEL)
 #define LOOPER_UNDO MIDI.sendControlChange(56, 127, MIDI_CHANNEL)
 

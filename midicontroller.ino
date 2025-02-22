@@ -2,8 +2,11 @@
 #include <MIDI.h> //V5.0.2
 #include <FastLED.h> //V3.9.13
 #include <Bugtton.h> //V1.0.6
-#include "QCMIDI.h"
+//TODO: If it stopped working, include QCMIDI before config again
 #include "config.h"
+#if DEVICE == QUAD_CORTEX
+#include "QCMIDI.h"
+#endif
 #include "footswitches.h"
 #include "actions.h"
 
@@ -15,9 +18,10 @@
  * Maybe even a 2D array where rows are banks and cols are footswitches in that bank?
  * Would probs make individual footswitch led modes easier, also the code more compact
  * Allow for held combos (shouldn't be too difficult)
- * Make special button actions assignable
- * Add SPECIAL_X_Y calls for more layouts (like 3x4 etc)
- * Add EXP hot plug with define
+ * Make special button actions assignable - Check if this works
+ * Exchange btn_held[] checks with buttons.held() calls, and remove hacky reset loop
+ *   -Didn't work when I tried it for some reason
+ * Check for special_action in action call, not the action itself
  */
 
 MIDI_CREATE_DEFAULT_INSTANCE();
@@ -264,6 +268,7 @@ void loop(){
     }
   }
   
+  //TODO: Convert all of the btn_held[] checks to buttons.pressed()
   //Check if special actions need to be called
   //Horizontal combos
   if(btn_held[0] && btn_held[1]){
@@ -272,6 +277,8 @@ void loop(){
     SPECIAL_1_2
   } else if(btn_held[2] && btn_held[3]){
     SPECIAL_2_3
+  // } else if(buttons.held(3) && buttons.held(4)){
+  //   SPECIAL_3_4
   } else if(btn_held[3] && btn_held[4]){
     SPECIAL_3_4
   } else if(btn_held[4] && btn_held[5]){
@@ -325,8 +332,10 @@ void loop(){
     SPECIAL_1_5
   } else if(btn_held[2] && btn_held[6]){
     SPECIAL_2_6
+  // } else if(buttons.held(3) && buttons.held(7)){
+  //   SPECIAL_3_7  
   } else if(btn_held[3] && btn_held[7]){
-    SPECIAL_3_7  
+    SPECIAL_3_7
   #elif FOOTSWITCH_NUM == 10
   } else if(btn_held[0] && btn_held[5]){
     SPECIAL_0_5
@@ -688,8 +697,8 @@ void calibrateExp(uint8_t pedal){
               if(buttons.rose(i)){
                 calibration_finished = true;
                 //Apply defined deadzones to limits
-                exp1_upper -= EXP1_DEADZONE;
-                exp1_lower += EXP1_DEADZONE;
+                exp1_upper -= EXP1_UPPER_DEADZONE;
+                exp1_lower += EXP1_LOWER_DEADZONE;
                 //Reset btn_held to fix an issue
                 for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
                   btn_held[j] = false;
@@ -743,8 +752,8 @@ void calibrateExp(uint8_t pedal){
               if(buttons.rose(i)){
                 calibration_finished = true;
                 //Apply defined deadzones to bounds
-                exp2_upper -= EXP2_DEADZONE;
-                exp2_lower += EXP2_DEADZONE
+                exp2_upper -= EXP2_UPPER_DEADZONE;
+                exp2_lower += EXP2_LOWER_DEADZONE
                 //Reset btn_held to fix an issue
                 for(uint8_t j = 0; j < FOOTSWITCH_NUM; j++){
                   btn_held[j] = false;

@@ -11,7 +11,7 @@
 #define FOOTSWITCH_MODES 0,0,1,1,0,0,1,1
 
 //How long should the switches be debounced? Set it as low as possible without getting double inputs
-#define DEBOUNCE 30
+#define DEBOUNCE 20
 
 //Set the special actions, leave empty if not needed
 //The corresponding switches need to be set to SPECIAL mode
@@ -20,12 +20,14 @@
 #define SPECIAL_3_7 TUNER;
 #define SPECIAL_6_7 GIG_LOOPER_VIEW;
 
+//#define BANK1_SHORTCUT PRESET_BANK
+
 //Set the actions per bank, empty actions will have no effect
 //The option ending in "P" is called when the switch is pressed
 //The option ending in "R" is called when the switch is released (only in standard mode)
 //Switches set to "special" mode only support the press options
 //The _R actions need the respective action set to momentary on the QC to work, else they'll be ignored
-//You can also call the press option again on release to emulate momentary behavior on actions
+//You can also call the press option again on release to emulate momentary behavior on certain actions
 //that only support latching modes, like Playing the looper
 #define BANK0BTN0P LOOPER_DUPLICATE;
 #define BANK0BTN0R

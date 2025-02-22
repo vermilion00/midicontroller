@@ -1,6 +1,8 @@
 /* Standard Config */
+//What device do you want to control? (QUAD_CORTEX/NEURAL_PLUGIN/etc)
+#define DEVICE QUAD_CORTEX
 //How many banks do you want to use?
-#define BANKS 3
+#define BANKS 2
 //Which Midi channel should be used? Set to MIDI_CHANNEL_OMNI to broadcast on all channels
 #define MIDI_CHANNEL 1
 //Default QC gig view mode (PRESET_MODE/SCENE_MODE/STOMP_MODE)
@@ -15,9 +17,10 @@
 #define BANK3_MODE STOMP_MODE
 //Do you have a Looper bank? Opening gig view on this bank will open the Looper view instead
 //If GIG_LOOPER_VIEW is assigned to an action
-#define LOOPER_BANK 0
+#define LOOPER_VIEW_BANK 0
 
 /* LED config */
+//TODO: Look up what I need to do to make this function with different LED types
 //How many LEDs do you use? Comment out if you don't use any
 #define LED_NUM 8
 //What kind of LEDs do you use?
@@ -48,11 +51,12 @@
 /* Expression Pedal config */
 //Do you have expression pedals connected, and if so, to which pins?
 //Comment out if not connected
-//It is recommended to pull the Pin to GND with a k resistor
+//It is recommended to pull the Pin to GND with a ~50k resistor
 #define EXP1_PIN A0
 //#define EXP2_PIN
 //Do you want a deadzone for the expression pedals?
-#define EXP1_DEADZONE 20
+#define EXP1_DEADZONE 10
+#define EXP1_UPPER_DEADZONE 50
 //Set the keys pressed to calibrate the expression pedals
 #define EXP1_CALIBRATION_KEY 4
 #define EXP2_CALIBRATION_KEY 5
@@ -66,7 +70,7 @@
 /* Special Button config */
 //Do you have a special button? To which Pin is that button connected?
 //Comment it out if you don't use one
-#define SPECIAL_PIN 10
+//#define SPECIAL_PIN 10
 //The hold action is called when the special button is held for longer than HOLD_DURATION
 #define SPECIAL_HOLD_ACTION NEXT_BANK
 //The press action is called otherwise
