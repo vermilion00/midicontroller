@@ -287,19 +287,19 @@ Set the LED color per bank. Check [this site](https://fastled.io/docs/struct_c_r
 
 ```#define BANKx_LED_MODE LED_TOGGLE```  
 Sets the LED mode on per bank. The options are:  
--```LED_EXCLUSIVE```  
+- ```LED_EXCLUSIVE```  
 Only one LED can be active at a time, e.g. for switching Scenes  
--```LED_TOGGLE```  
+- ```LED_TOGGLE```  
 LEDs are turned on/off if the corresponding switch is pressed
--```LED_MOMENTARY```  
+- ```LED_MOMENTARY```  
 LEDs are turned on when the corresponding switch is pressed, and off when released  
--```LED_EXP1```  
+- ```LED_EXP1```  
 All LEDs are on, brightness changes according to pedal 1 position  
--```LED_EXP2```  
+- ```LED_EXP2```  
 All LEDs are on, brightness changes according to pedal 2 position  
--```LED_ALL```  
+- ```LED_ALL```  
 All LEDs are on  
--```LED_OFF```  
+- ```LED_OFF```  
 All LEDs are off  
 
 ```#define EXP1_PIN A0```  
