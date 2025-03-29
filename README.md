@@ -1,7 +1,7 @@
 # An easily configurable Arduino Midicontroller Firmware for the Quad Cortex
 This firmware for the Arduino Uno is designed to be configurable for up to 16 switches, 16 banks, 16 LEDs and 2 Expression Pedal inputs.
 It supports every midi command that the Quad Cortex understands, and midi commands for other receivers should be easily implementable.
-The QC midi commands can be found here: https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf  
+The QC midi commands can be found in the [QC manual.] (https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf)  
 Every command can be mapped to any switch on any bank.
 
 ## Special Features
@@ -16,7 +16,7 @@ Additional Features include:
 ## Command explanations
 ### QC Commands
 ```CHANGE_PRESET(set, preset)```  
-Loads the corresponding preset from **all** setlists according to the parameters. Look up "Incoming MIDI Messages" in the QC manual https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf for more info.
+Loads the corresponding preset from **all** setlists according to the parameters. Look up "Incoming MIDI Messages" in the [QC manual] (https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf) for more info.
 
 ```PRESET(preset)```  
 Loads the corresponding preset from the **current** setlist.
@@ -283,7 +283,7 @@ Which pin is used as the data pin for your LED strip?
 How bright should the LEDs be? (0-255)
 
 ```#define BANKx_COLOR Red```  
-Set the LED color per bank. Check https://fastled.io/docs/struct_c_r_g_b.html#aeb40a08b7cb90c1e21bd408261558b99 for color names.  
+Set the LED color per bank. Check [this site] (https://fastled.io/docs/struct_c_r_g_b.html#aeb40a08b7cb90c1e21bd408261558b99) for color names.  
 
 ```#define BANKx_LED_MODE LED_TOGGLE```  
 Sets the LED mode on per bank. The options are:  

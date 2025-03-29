@@ -83,24 +83,3 @@
 //#define NO_EEPROM
 //Uncomment to disable EEPROM Write access, will still read the saved data
 //#define NO_EEPROM_WRITE
-
-
-/*
-//Set the actions in bank y
-#define BANKyBTN0P
-#define BANKyBTN0R
-#define BANKyBTN1P
-#define BANKyBTN1R
-#define BANKyBTN2P
-#define BANKyBTN2R
-#define BANKyBTN3P
-#define BANKyBTN3R
-#define BANKyBTN4P
-#define BANKyBTN4R
-#define BANKyBTN5P
-#define BANKyBTN5R
-#define BANKyBTN6P
-#define BANKyBTN6R
-#define BANKyBTN7P
-#define BANKyBTN7R
-*/
