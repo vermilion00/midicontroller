@@ -164,7 +164,7 @@ To stop calibrating and to save the data to the Arduinos memory, press any butto
 
 ## Footswitch Configuration
 Every following action is defined in _footswitches.h_.
-Blank templates for 4x2, 6x2, 8x2 and 4x3 layouts can be found in the templates folder. Banks that you don't need can simply be deleted from your file.
+Blank templates for 4x2, 5x2, 6x2 and 4x3 layouts can be found in the templates folder. Banks that you don't need can simply be deleted from your file.
 ### Action assignments
 The firmware supports up to 16 banks (0-15) and 16 switches (0-15). An action is assigned to each switch in each bank. The assignment looks like this:  
 ```#define BANK0BTN0P SCENE_A;```
@@ -173,8 +173,8 @@ There are also release actions that are called when you release the switch:
 ```#define BANK3BTN7R TUNER_CLOSE;```
 The "R" at the end means that releasing switch 7 while bank 3 (remember, 0-indexed) is active will close the Tuner window.  
 This allows you to use double bindings, e.g. to open the Gig View when a button is held and close it when it's released, you'd use this binding:  
-```#define BANK2BTN7P GIG_VIEW_OPEN;
-#define BANK2BTN7R GIG_VIEW_CLOSE;```
+```#define BANK2BTN7P GIG_VIEW_OPEN;```
+```#define BANK2BTN7R GIG_VIEW_CLOSE;```
 However, release actions are only called if the footswitch mode for that switch is set to 0 (standard).
 
 ### Combo actions
