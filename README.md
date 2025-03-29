@@ -167,32 +167,32 @@ Every following action is defined in _footswitches.h_.
 Blank templates for 4x2, 5x2, 6x2 and 4x3 layouts can be found in the templates folder. Banks that you don't need can simply be deleted from your file.
 ### Action assignments
 The firmware supports up to 16 banks (0-15) and 16 switches (0-15). An action is assigned to each switch in each bank. The assignment looks like this:  
-```#define BANK0BTN0P SCENE_A;```
+```#define BANK0BTN0P SCENE_A;```  
 This means that if you press switch 0 while on bank 0, the controller will tell the QC to switch to Scene A. Each combination of bank and switch has a #define like this.  
 There are also release actions that are called when you release the switch:  
-```#define BANK3BTN7R TUNER_CLOSE;```
+```#define BANK3BTN7R TUNER_CLOSE;```  
 The "R" at the end means that releasing switch 7 while bank 3 (remember, 0-indexed) is active will close the Tuner window.  
 This allows you to use double bindings, e.g. to open the Gig View when a button is held and close it when it's released, you'd use this binding:  
 ```
 #define BANK2BTN7P GIG_VIEW_OPEN;  
 #define BANK2BTN7R GIG_VIEW_CLOSE;
-```
+```  
 However, release actions are only called if the footswitch mode for that switch is set to 0 (standard).
 
 ### Combo actions
 You can also set the footswitch mode to 1 on a per-switch basis, allowing you to use this switch in Combos. A combo is any 2 neighboring switches that are set to mode 1. Pressing these together triggers a separate action, assigned using the following define in _footswitches.h_:  
-```#define SPECIAL_6_7 TUNER;```
-This means that pressing switches 6 and 7 together doesn't call their individual actions, but instead opens/closes the Tuner. These combo actions exist for every combination of neighboring switches, so that you can easily use additional actions with one foot. 
+```#define SPECIAL_6_7 TUNER;```  
+This means that pressing switches 6 and 7 together doesn't call their individual actions, but instead opens/closes the Tuner. These combo actions exist for every combination of neighboring switches, so that you can easily use additional actions with one foot.  
 ***To use combo actions, the switch mode needs to be to 1. This calls the normal press action on release instead and disables the release action.***  
 
 ### Basic configuration
-```#define FOOTSWITCH_NUM 8```
+```#define FOOTSWITCH_NUM 8```  
 Set this to the amount of footswitches you have.  
-```#define FOOTSWITCH_PINS 2,3,4,5,6,7,8,9```
+```#define FOOTSWITCH_PINS 2,3,4,5,6,7,8,9```  
 Set the order of the switches here. The numbers correspond to the digital Pins that each switch is connected to. The leftmost number is switch 0.  
-```#define DEBOUNCE 20```
+```#define DEBOUNCE 20```  
 Set the debounce time in milliseconds. It's recommended to use the smallest number that doesn't result in double inputs.  
-```#define FOOTSWITCH_MODES 0,0,1,1,0,0,1,1```
+```#define FOOTSWITCH_MODES 0,0,1,1,0,0,1,1```  
 Set the footswitch modes for each switch individually.  
 ***To use combo actions, the switch mode needs to be to 1. This calls the normal press action on release instead and disables the release action. If you don't use a switch with combo actions, set the mode to 0.***   
 
@@ -201,7 +201,8 @@ There exist bank shortcuts for Looper, Preset, Scene and Stomp banks.
 If e.g. your bank 1 just needs the standard scene switching actions, you can use this to skip setting each action individually:  
 ```#define BANK1_SHORTCUT SCENE_BANK```  
 This is equivalent to the following assignments:  
-```#define BANK1BTN0P SCENE_A;
+```
+#define BANK1BTN0P SCENE_A;
 #define BANK1BTN0R
 #define BANK1BTN1P SCENE_B;
 #define BANK1BTN1R
@@ -216,10 +217,12 @@ This is equivalent to the following assignments:
 #define BANK1BTN6P SCENE_G;
 #define BANK1BTN6R
 #define BANK1BTN7P SCENE_H;
-#define BANK1BTN7R```  
+#define BANK1BTN7R
+```  
 
 The LOOPER_BANK shortcut uses the following assignments:  
-```#define BANKxBTN0P LOOPER_DUPLICATE;
+```
+#define BANKxBTN0P LOOPER_DUPLICATE;
 #define BANKxBTN0R
 #define BANKxBTN1P LOOPER_ONESHOT;
 #define BANKxBTN1R
@@ -234,98 +237,108 @@ The LOOPER_BANK shortcut uses the following assignments:
 #define BANKxBTN6P LOOPER_REVERSE;
 #define BANKxBTN6R
 #define BANKxTN7P LOOPER_UNDO;
-#define BANKxBTN7R```
+#define BANKxBTN7R
+```
 
-If a bank is dedicated to Looper controls, you can also set 
-```#define LOOPER_VIEW_BANK x```
+If a bank is dedicated to Looper controls, you can also set  
+```#define LOOPER_VIEW_BANK 0```  
 When the controller is on this bank, using the GIG_LOOPER_VIEW command will open the Looper view instead of the Gig view.
 
 ## Controller Configuration
 All following configuration options are defined in the _config.h_ file.
 ### Basics
-```#define BANKS 2```
+```#define BANKS 2```  
 Sets the amount of Banks that the NEXT_BANK and PREV_BANK actions loop through.  
 It is possible to have additional banks that are accessible through the SET_BANK and MOMENTARY_BANK commands.
 
-```#define MIDI_CHANNEL 1```
+```#define MIDI_CHANNEL 1```  
 Sets the output MIDI_CHANNEL, set to MIDI_CHANNEL_OMNI to broadcast on all channels.  
 
-```#define DEFAULT_MODE SCENE_MODE```
+```#define DEFAULT_MODE SCENE_MODE```  
 Sets the default QC Gig View mode. (PRESET_MODE/SCENE_MODE/STOMP_MODE)  
 
-```#define BANKx_MODE PRESET_MODE```
+```#define BANKx_MODE PRESET_MODE```  
 Sets the QC Gig View mode on a per-bank basis.
 
-```#define LOOPER_VIEW_BANK 0```
+```#define LOOPER_VIEW_BANK 0```  
 If the controller is on this bank, the GIG_LOOPER_VIEW command opens the Looper view.  
 
 ### LED configuration
-```#define LED_NUM 8```
+```#define LED_NUM 8```  
 How many LEDs you're using. Comment out if you don't use any.  
 
-```#define LED_TYPE WS2812```
+```#define LED_TYPE WS2812```  
 ***NEEDS TO BE TESTED, PROBABLY DOESN'T WORK***  
 
-```#define SUBPIXEL_ORDER RGB```
+```#define SUBPIXEL_ORDER RGB```  
 Sets the LED subpixel order. If the colors aren't working properly, try changing the order of R,G,B.  
 
-```#define LED_ORDER {4,5,6,7,0,1,2,3}```
+```#define LED_ORDER {4,5,6,7,0,1,2,3}```  
 If the order of LEDs doesn't match the order of footswitches, you can change this here.  
 
-```#define DATA_PIN 11```
+```#define DATA_PIN 11```  
 Which pin is used as the data pin for your LED strip?  
 
-```#define LED_BRIGHTNESS 30```
+```#define LED_BRIGHTNESS 30```  
 How bright should the LEDs be? (0-255)
 
-```#define BANKx_COLOR Red```
+```#define BANKx_COLOR Red```  
 Set the LED color per bank. Check https://fastled.io/docs/struct_c_r_g_b.html#aeb40a08b7cb90c1e21bd408261558b99 for color names.  
 
-```#define BANKx_LED_MODE LED_TOGGLE```
+```#define BANKx_LED_MODE LED_TOGGLE```  
 Sets the LED mode on per bank. The options are:  
-```LED_EXCLUSIVE``` (Only one LED can be active at a time, e.g. for switching Scenes)  
-```LED_TOGGLE``` (LEDs are turned on/off if the corresponding switch is pressed)  
-```LED_MOMENTARY``` (LEDs are turned on when the corresponding switch is pressed, and off when released)  
-```LED_EXP1``` (All LEDs are on, brightness changes according to pedal 1 position)  
-```LED_EXP2``` (All LEDs are on, brightness changes according to pedal 2 position)  
-```LED_ALL``` (All LEDs are on)  
-```LED_OFF``` (All LEDs are off)
+```LED_EXCLUSIVE```  
+Only one LED can be active at a time, e.g. for switching Scenes  
+```LED_TOGGLE```  
+LEDs are turned on/off if the corresponding switch is pressed
+```LED_MOMENTARY```  
+LEDs are turned on when the corresponding switch is pressed, and off when released  
+```LED_EXP1```  
+All LEDs are on, brightness changes according to pedal 1 position  
+```LED_EXP2```  
+All LEDs are on, brightness changes according to pedal 2 position  
+```LED_ALL```  
+All LEDs are on  
+```LED_OFF```  
+All LEDs are off  
 
-```#define EXP1_PIN A0```
+```#define EXP1_PIN A0```  
 Sets the analog pin to which the Pedal 1 input is connected.  
 _It is recommended to pull the pin to GND with a ~50k resistor, to make sure pedal detection works reliably_.  
 
-```#define EXP1_CALIBRATION_KEY 4```
+```#define EXP1_CALIBRATION_KEY 4```  
 This key is used to start pedal 1 calibration, check the pedal calibration section for info.  
 
-```#define EXP1_UPPER_DEADZONE 50  
-#define EXP1_LOWER_DEADZONE 10```
+```
+#define EXP1_UPPER_DEADZONE 50  
+#define EXP1_LOWER_DEADZONE 10
+```  
 Set Deadzones for the upper and lower limits of the pedal.  
 
-```#define EXP_THRESHOLD 100```
+```#define EXP_THRESHOLD 100```  
 If the adc reads a value lower than this at startup, the controller assumes that no pedal is connected and skips related code. Since the pin should be pulled low, the reading should be around 0 if no pedal is connected.  
 
 ### Miscellaneous Configuration
-```#define NO_EEPROM```
+```#define NO_EEPROM```  
 If this option is defined in config.h, the pedal values aren't written and read to/from the EEPROM.  
 
-```#define NO_EEPROM_WRITE```
+```#define NO_EEPROM_WRITE```  
 If this option is defined in config.h, write access to the EEPROM is blocked, but stored values can still be read.  
 
-```#define SPECIAL_PIN 10```
+```#define SPECIAL_PIN 10```  
 Allows for a separate button on your controller. If you don't need this, comment it out.  
 
-```#define SPECIAL_PRESS_ACTION TUNER```
+```#define SPECIAL_PRESS_ACTION TUNER```  
 Set the command to be executed when the special button is pressed.  
 
-```#define SPECIAL_HOLD_ACTION CALIBRATE_PEDALS```
+```#define SPECIAL_HOLD_ACTION CALIBRATE_PEDALS```  
 Set the command to be executed when the special button is held.  
 
-```#define HOLD_DURATION 300```
+```#define HOLD_DURATION 300```  
 How long the special button needs to be held to execute the hold action.
 
-```#define MIN_BRIGHTNESS 10```
-Set the minimum brightness value for the LED_EXPx modes. (0-255)    
+```#define MIN_BRIGHTNESS 10```  
+Set the minimum brightness value for the LED_EXPx modes. (0-255)  
 
-```#define MAX_BRIGHTNESS 250```
+```#define MAX_BRIGHTNESS 250```  
 Set the maximum brightness value for the LED_EXPx modes. (0-255)  
