@@ -119,6 +119,7 @@ Read the QCmidi.h file to change Looper settings and routing options over Midi.
 ## Special commands
 > [!WARNING]
 > Special commands are only tested when called by a combo action. Assigning them to a standard footswitch action might not work.  
+
 ```TUNER```  
 Opens/Closes the Tuner window when triggered.
 
