@@ -164,7 +164,7 @@ To stop calibrating and to save the data to the Arduinos memory, press any butto
 
 ## Footswitch Configuration
 Every following action is defined in _footswitches.h_.
-Blank templates for 4x2, 6x2, 8x2 and 4x3 layouts can be found in the templates folder.
+Blank templates for 4x2, 6x2, 8x2 and 4x3 layouts can be found in the templates folder. Banks that you don't need can simply be deleted from your file.
 ### Action assignments
 The firmware supports up to 16 banks (0-15) and 16 switches (0-15). An action is assigned to each switch in each bank. The assignment looks like this:  
 ```#define BANK0BTN0P SCENE_A;```
