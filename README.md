@@ -15,7 +15,9 @@ Additional Features include:
 
 ## Command explanations
 ### QC Commands
-'''CHANGE_PRESET(set, preset)'''  
+'''
+CHANGE_PRESET(set, preset)
+'''  
 Loads the corresponding preset from **all** setlists according to the parameters. Look up "Incoming MIDI Messages" in the QC manual https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf for more info.
 
 '''PRESET(preset)'''  
