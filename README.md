@@ -18,25 +18,25 @@ Additional Features include:
 ```CHANGE_PRESET(set, preset)```  
 Loads the corresponding preset from **all** setlists according to the parameters. Look up "Incoming MIDI Messages" in the QC manual https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf for more info.
 
-```PRESET(preset)'''  
+```PRESET(preset)```  
 Loads the corresponding preset from the **current** setlist.
 
-```CHANGE_BANK(bank)'''  
+```CHANGE_BANK(bank)```  
 Changes only the Quad Cortex preset bank (without loading a new preset).
 
-```SETLIST(set)'''  
+```SETLIST(set)```  
 Changes only the Quad Cortex setlist (without loading a new preset).
 
-```EXP_PEDAL_1(val1)'''  
+```EXP_PEDAL_1(val1)```  
 Sends an expression pedal 1 position (0-127) to the QC.
 
-```EXP_PEDAL_2(val2)'''  
+```EXP_PEDAL_2(val2)```  
 Sends an expression pedal 2 position (0-127) to the QC.
 
-```FOOTSWITCH(x)'''  
+```FOOTSWITCH(x)```  
 Sends a "footswitch x pressed" command to the QC. Uses numbers 0-7 instead of letters.
 
-```FOOTSWITCH_R(x)'''  
+```FOOTSWITCH_R(x)```  
 Sends a "footswitch x released" command to the QC. Uses numbers 0-7 instead of letters.
 
 ```FOOTSWITCH_A```  
@@ -45,7 +45,7 @@ Sends a "footswitch A pressed" command to the QC. A can be substituted for A-H.
 ```FOOTSWITCH_A_R```  
 Sends a "footswitch A released" command to the QC. A can be substituted for A-H.
 
-```SCENE(x)'''  
+```SCENE(x)```  
 Sends a scene change command to the QC. Uses numbers 0-7.
 
 ```SCENE_A```  
@@ -129,7 +129,7 @@ Opens/Closes the Gig View when triggered.
 ```GIG_LOOPER_VIEW```  
 Opens/Closes the Gig View when triggered. If the current controller bank matches the LOOPER_BANK define, this Opens/Closes the Looper View instead.
 
-```MOMENTARY_BANK(bank)'''  
+```MOMENTARY_BANK(bank)```  
 Loads the controller bank passed as an argument for the next button press only, then immediately loads the previously active bank.
 
 ```NEXT_BANK```  
@@ -141,7 +141,7 @@ Loads the previous bank on the midi controller.
 ```RESET_BANK```  
 Loads Bank 0 on the midi controller.
 
-```SET_BANK(bank)'  
+```SET_BANK(bank)```  
 Loads the controller bank passed as an argument.
 
 ```CALIBRATE_PEDAL```  
