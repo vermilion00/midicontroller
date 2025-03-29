@@ -173,8 +173,10 @@ There are also release actions that are called when you release the switch:
 ```#define BANK3BTN7R TUNER_CLOSE;```
 The "R" at the end means that releasing switch 7 while bank 3 (remember, 0-indexed) is active will close the Tuner window.  
 This allows you to use double bindings, e.g. to open the Gig View when a button is held and close it when it's released, you'd use this binding:  
-```#define BANK2BTN7P GIG_VIEW_OPEN;```
-```#define BANK2BTN7R GIG_VIEW_CLOSE;```
+```
+#define BANK2BTN7P GIG_VIEW_OPEN;  
+#define BANK2BTN7R GIG_VIEW_CLOSE;
+```
 However, release actions are only called if the footswitch mode for that switch is set to 0 (standard).
 
 ### Combo actions
