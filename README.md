@@ -6,12 +6,12 @@ Every command can be mapped to any switch on any bank.
 
 ## Special Features
 Additional Features include:  
--Pressing multiple buttons simultaneously for even more actions (also remappable)  
--Momentary banks  
--Automatic Expression Pedal detection  
--Expression Pedal Deadzones  
--Expression Pedal calibration  
--Per Bank led color and mode assignment
+- Pressing multiple buttons simultaneously for even more actions (also remappable)  
+- Momentary banks  
+- Automatic Expression Pedal detection  
+- Expression Pedal calibration  
+- Per Bank led color and mode assignment
+- And much more!
 
 ## Command explanations
 ### QC Commands
@@ -117,7 +117,8 @@ Read the QCmidi.h file to change Looper settings and routing options over Midi.
  
 
 ## Special commands
-***Special commands are only tested when called by a combo action. Assigning them to a standard footswitch action might not work.***  
+> [!WARNING]
+> Special commands are only tested when called by a combo action. Assigning them to a standard footswitch action might not work.  
 ```TUNER```  
 Opens/Closes the Tuner window when triggered.
 
@@ -183,7 +184,8 @@ However, release actions are only called if the footswitch mode for that switch 
 You can also set the footswitch mode to 1 on a per-switch basis, allowing you to use this switch in Combos. A combo is any 2 neighboring switches that are set to mode 1. Pressing these together triggers a separate action, assigned using the following define in _footswitches.h_:  
 ```#define SPECIAL_6_7 TUNER;```  
 This means that pressing switches 6 and 7 together doesn't call their individual actions, but instead opens/closes the Tuner. These combo actions exist for every combination of neighboring switches, so that you can easily use additional actions with one foot.  
-***To use combo actions, the switch mode needs to be to 1. This calls the normal press action on release instead and disables the release action.***  
+> [!IMPORTANT]
+> To use combo actions, the switch mode needs to be to 1. This calls the normal press action on release instead and disables the release action.  
 
 ### Basic configuration
 ```#define FOOTSWITCH_NUM 8```  
@@ -194,7 +196,8 @@ Set the order of the switches here. The numbers correspond to the digital Pins t
 Set the debounce time in milliseconds. It's recommended to use the smallest number that doesn't result in double inputs.  
 ```#define FOOTSWITCH_MODES 0,0,1,1,0,0,1,1```  
 Set the footswitch modes for each switch individually.  
-***To use combo actions, the switch mode needs to be to 1. This calls the normal press action on release instead and disables the release action. If you don't use a switch with combo actions, set the mode to 0.***   
+> [!IMPORTANT] 
+> To use combo actions, the switch mode needs to be to 1. This calls the normal press action on release instead and disables the release action. If you don't use a switch with combo actions, set the mode to 0.     
 
 ### Bank Shortcuts
 There exist bank shortcuts for Looper, Preset, Scene and Stomp banks.
@@ -268,7 +271,8 @@ If the controller is on this bank, the GIG_LOOPER_VIEW command opens the Looper 
 How many LEDs you're using. Comment out if you don't use any.  
 
 ```#define LED_TYPE WS2812```  
-***NEEDS TO BE TESTED, PROBABLY DOESN'T WORK***  
+> [!WARNING]
+> Needs to be tested, changing this probably doesn't work yet  
 
 ```#define SUBPIXEL_ORDER RGB```  
 Sets the LED subpixel order. If the colors aren't working properly, try changing the order of R,G,B.  
@@ -283,7 +287,9 @@ Which pin is used as the data pin for your LED strip?
 How bright should the LEDs be? (0-255)
 
 ```#define BANKx_COLOR Red```  
-Set the LED color per bank. Check [this site](https://fastled.io/docs/struct_c_r_g_b.html#aeb40a08b7cb90c1e21bd408261558b99) for color names.  
+Set the LED color per bank.
+> [!TIP]
+> Check [this site](https://fastled.io/docs/struct_c_r_g_b.html#aeb40a08b7cb90c1e21bd408261558b99) for color names.  
 
 ```#define BANKx_LED_MODE LED_TOGGLE```  
 Sets the LED mode on per bank. The options are:  
