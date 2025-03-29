@@ -1126,6 +1126,7 @@ void action(uint8_t i, uint8_t bank, bool state){
           break;
       }
       break;
+	#if BANKS > 3
     case 3:
       switch(i){
         case 0:

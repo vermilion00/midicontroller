@@ -1,7 +1,7 @@
 # An easily configurable Arduino Midicontroller Firmware for the Quad Cortex
 This firmware for the Arduino Uno is designed to be configurable for up to 16 switches, 16 banks, 16 LEDs and 2 Expression Pedal inputs.
 It supports every midi command that the Quad Cortex understands, and midi commands for other receivers should be easily implementable.
-The QC midi commands can be found here: https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf
+The QC midi commands can be found here: https://downloads.neuraldsp.com/file/quad-cortex/Quad%20Cortex%20User%20Manual%20v3.1.0.pdf  
 Every command can be mapped to any switch on any bank.
 
 ## Special Features
@@ -238,79 +238,92 @@ If a bank is dedicated to Looper controls, you can also set
 ```#define LOOPER_VIEW_BANK x```
 When the controller is on this bank, using the GIG_LOOPER_VIEW command will open the Looper view instead of the Gig view.
 
-## Configuration Options
+## Controller Configuration
+All following configuration options are defined in the _config.h_ file.
+### Basics
+```#define BANKS 2```
+Sets the amount of Banks that the NEXT_BANK and PREV_BANK actions loop through.  
+It is possible to have additional banks that are accessible through the SET_BANK and MOMENTARY_BANK commands.
 
-MISCELLANIOUS DEFINES
-#define NO_CALIBRATION_ANIMATION
-#define SPECIAL_BUTTON
-#define MIDI_CHANNEL
-#define LOOPER_BANK
-#define DEFAULT_MODE
-#define DEFAULT_COLOR
-#define SUBPIXEL_ORDER
-#define LED_ORDER
-#define LED_BRIGHTNESS
-#define EXP_THRESHOLD
-#define EXPx_DEADZONE
-#define EXPx_UPPER_DEADZONE
-#define EXPx_LOWER_DEADZONE
-#define HOLD_DURATION
-#define MAX_BRIGHTNESS
-#define MIN_BRIGHTNESS
-#define BANK_COLOR
-#define DEFAULT_LED_MODE
-#define BANK_LED_MODE
-#define SPECIAL_X_Y
-#define EXP1_CALIBRATION_KEY
-#define EXP2_CALIBRATION_KEY
-#define NO_EEPROM
-#define NO_EEPROM_WRITE
-#define EXP_HOT_PLUG
-BANK0_SHORTCUT etc
+```#define MIDI_CHANNEL 1```
+Sets the output MIDI_CHANNEL, set to MIDI_CHANNEL_OMNI to broadcast on all channels.  
 
-Special Actions
--TUNER
--LOOPER_VIEW
--GIG_VIEW
--GIG_LOOPER_VIEW
--SET_BANK(bank)
--NEXT_BANK
--PREV_BANK
--RESET_BANK
--MOMENTARY_BANK(bank)
--SWAP_PEDALS
--CALIBRATE_PEDAL
--CALIBRATE_PEDAL_1
--CALIBRATE_PEDAL_2
--CALIBRATE_PEDALS
+```#define DEFAULT_MODE SCENE_MODE```
+Sets the default QC Gig View mode. (PRESET_MODE/SCENE_MODE/STOMP_MODE)  
 
-LED MODES
-LED_OFF
-LED_ALL
-LED_EXCLUSIVE
-LED_TOGGLE
-LED_MOMENTARY
-LED_EXP1
-LED_EXP2
+```#define BANKx_MODE PRESET_MODE```
+Sets the QC Gig View mode on a per-bank basis.
 
-STANDARD ACTIONS
-CHANGE_PRESET(set, preset)
-PRESET(preset)
-CHANGE_BANK(bank)
-CHANGE_BANK_0
-CHANGE_BANK_1
-EXP_PEDAL_1(val1)
-EXP_PEDAL_2(val2)
-SETLIST(set)
-FOOTSWITCH(switch)
-FOOTSWITCH_R(switch)
-SCENE(scene)
-TAP_TEMPO //Needs checking
-TUNER_OPEN
-TUNER_CLOSE
-GIG_VIEW_OPEN
-GIG_VIEW_CLOSE
-PRESET_MODE
-SCENE_MODE
-STOMP_MODE
-IGNORE_DUPLICATE_PC_ON
+```#define LOOPER_VIEW_BANK 0```
+If the controller is on this bank, the GIG_LOOPER_VIEW command opens the Looper view.  
+
+### LED configuration
+```#define LED_NUM 8```
+How many LEDs you're using. Comment out if you don't use any.  
+
+```#define LED_TYPE WS2812```
+***NEEDS TO BE TESTED, PROBABLY DOESN'T WORK***  
+
+```#define SUBPIXEL_ORDER RGB```
+Sets the LED subpixel order. If the colors aren't working properly, try changing the order of R,G,B.  
+
+```#define LED_ORDER {4,5,6,7,0,1,2,3}```
+If the order of LEDs doesn't match the order of footswitches, you can change this here.  
+
+```#define DATA_PIN 11```
+Which pin is used as the data pin for your LED strip?  
+
+```#define LED_BRIGHTNESS 30```
+How bright should the LEDs be? (0-255)
+
+```#define BANKx_COLOR Red```
+Set the LED color per bank. Check https://fastled.io/docs/struct_c_r_g_b.html#aeb40a08b7cb90c1e21bd408261558b99 for color names.  
+
+```#define BANKx_LED_MODE LED_TOGGLE```
+Sets the LED mode on per bank. The options are:  
+```LED_EXCLUSIVE``` (Only one LED can be active at a time, e.g. for switching Scenes)  
+```LED_TOGGLE``` (LEDs are turned on/off if the corresponding switch is pressed)  
+```LED_MOMENTARY``` (LEDs are turned on when the corresponding switch is pressed, and off when released)  
+```LED_EXP1``` (All LEDs are on, brightness changes according to pedal 1 position)  
+```LED_EXP2``` (All LEDs are on, brightness changes according to pedal 2 position)  
+```LED_ALL``` (All LEDs are on)  
+```LED_OFF``` (All LEDs are off)
+
+```#define EXP1_PIN A0```
+Sets the analog pin to which the Pedal 1 input is connected.  
+_It is recommended to pull the pin to GND with a ~50k resistor, to make sure pedal detection works reliably_.  
+
+```#define EXP1_CALIBRATION_KEY 4```
+This key is used to start pedal 1 calibration, check the pedal calibration section for info.  
+
+```#define EXP1_UPPER_DEADZONE 50  
+#define EXP1_LOWER_DEADZONE 10```
+Set Deadzones for the upper and lower limits of the pedal.  
+
+```#define EXP_THRESHOLD 100```
+If the adc reads a value lower than this at startup, the controller assumes that no pedal is connected and skips related code. Since the pin should be pulled low, the reading should be around 0 if no pedal is connected.  
+
+### Miscellaneous Configuration
+```#define NO_EEPROM```
+If this option is defined in config.h, the pedal values aren't written and read to/from the EEPROM.  
+
+```#define NO_EEPROM_WRITE```
+If this option is defined in config.h, write access to the EEPROM is blocked, but stored values can still be read.  
+
+```#define SPECIAL_PIN 10```
+Allows for a separate button on your controller. If you don't need this, comment it out.  
+
+```#define SPECIAL_PRESS_ACTION TUNER```
+Set the command to be executed when the special button is pressed.  
+
+```#define SPECIAL_HOLD_ACTION CALIBRATE_PEDALS```
+Set the command to be executed when the special button is held.  
+
+```#define HOLD_DURATION 300```
+How long the special button needs to be held to execute the hold action.
+
+```#define MIN_BRIGHTNESS 10```
+Set the minimum brightness value for the LED_EXPx modes. (0-255)    
+
+```#define MAX_BRIGHTNESS 250```
+Set the maximum brightness value for the LED_EXPx modes. (0-255)  
