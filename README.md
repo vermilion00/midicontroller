@@ -52,19 +52,25 @@ Sends a scene change command to the QC. Uses numbers 0-7.
 Sends a scene change command to the QC. Uses letters A-H.
 
 ```TAP_TEMPO```  
-Sends a tap tempo command to the QC. _NEEDS TESTING_
+Sends a tap tempo command to the QC.  
+> [!WARNING]
+> TAP_TEMPO has not been tested yet.  
 
 ```TUNER_OPEN```  
-Opens the Tuner on the QC. _Special action TUNER is recommended._
+Opens the Tuner on the QC. 
+> [!TIP]
+> Use the special action TUNER to open and close the tuner window with the same key/combination.  
 
 ```TUNER_CLOSE```  
-Closes the Tuner on the QC. _Special action TUNER is recommended._
+Closes the Tuner on the QC.
 
 ```GIG_VIEW_OPEN```  
-Opens the Gig View on the QC. _Special action GIG_VIEW is recommended._
+Opens the Gig View on the QC.  
+> [!TIP]
+> Use the special action GIG_VIEW to open and close the gig view window with the same key/combination.  
 
 ```GIG_VIEW_CLOSE```  
-Closes the Gig View on the QC. _Special action GIG_VIEW is recommended._
+Closes the Gig View on the QC.  
 
 ```PRESET_MODE```  
 Sets the QC Gig View mode to _PRESET_.
@@ -77,10 +83,12 @@ Sets the QC Gig View mode to _STOMP_.
 
 ### QC Looper commands
 ```LOOPER_OPEN```  
-Opens the Looper on the QC. _Special action GIG_LOOPER_VIEW is recommended._
+Opens the Looper on the QC.  
+> [!TIP]
+> Use the special action GIG_LOOPER_VIEW to open and close the gig view window with the same key/combination. 
 
 ```LOOPER_CLOSE```  
-Closes the Looper on the QC. _Special action GIG_LOOPER_VIEW is recommended._
+Closes the Looper on the QC.  
 
 ```LOOPER_RECORD```  
 Starts/Stops recording the Looper.
